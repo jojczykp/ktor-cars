@@ -10,13 +10,24 @@ import org.junit.jupiter.api.Test
 class CarsIT {
 
     @Test
-    fun `getCars should return cars`() = testApplication {
+    fun `GET cars should return cars`() = testApplication {
         client.get("/cars").apply {
             assertThat(status).isEqualTo(HttpStatusCode.OK)
-            assertThat(headers.get("Content-Length")).isEqualTo("46")
-            assertThat(headers.get("Content-Type")).isEqualTo("application/json; charset=UTF-8")
+            assertThat(headers["Content-Length"]).isEqualTo("46")
+            assertThat(headers["Content-Type"]).isEqualTo("application/json; charset=UTF-8")
             assertThat(headers.names().size).isEqualTo(2)
             assertThat(bodyAsText()).isEqualTo("""[{"id":1,"make":"Audi"},{"id":2,"make":"BMW"}]""")
+        }
+    }
+
+    @Test
+    fun `HEAD cars should return cars headers`() = testApplication {
+        client.head("/cars").apply {
+            assertThat(status).isEqualTo(HttpStatusCode.OK)
+            assertThat(headers["Content-Length"]).isEqualTo("46")
+            assertThat(headers["Content-Type"]).isEqualTo("application/json; charset=UTF-8")
+            assertThat(headers.names().size).isEqualTo(2)
+            assertThat(bodyAsText()).isEmpty()
         }
     }
 }
