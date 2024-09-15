@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 class CarsIT {
 
     @Test
-    fun `GET cars should return cars`() = testApplication {
+    fun `GET cars should return all cars`() = testApplication {
         client.get("/cars").apply {
             assertThat(status).isEqualTo(HttpStatusCode.OK)
             assertThat(headers["Content-Length"]).isEqualTo("46")
@@ -21,7 +21,7 @@ class CarsIT {
     }
 
     @Test
-    fun `HEAD cars should return cars headers`() = testApplication {
+    fun `HEAD cars should return all cars headers`() = testApplication {
         client.head("/cars").apply {
             assertThat(status).isEqualTo(HttpStatusCode.OK)
             assertThat(headers["Content-Length"]).isEqualTo("46")
@@ -30,4 +30,47 @@ class CarsIT {
             assertThat(bodyAsText()).isEmpty()
         }
     }
+
+    @Test
+    fun `GET cars {id} should return single car`() = testApplication {
+        client.get("/cars/1").apply {
+            assertThat(status).isEqualTo(HttpStatusCode.OK)
+            assertThat(headers["Content-Length"]).isEqualTo("22")
+            assertThat(headers["Content-Type"]).isEqualTo("application/json; charset=UTF-8")
+            assertThat(headers.names().size).isEqualTo(2)
+            assertThat(bodyAsText()).isEqualTo("""{"id":1,"make":"Audi"}""")
+        }
+    }
+
+    @Test
+    fun `HEAD cars {id} should return single car headers`() = testApplication {
+        client.head("/cars/1").apply {
+            assertThat(status).isEqualTo(HttpStatusCode.OK)
+            assertThat(headers["Content-Length"]).isEqualTo("22")
+            assertThat(headers["Content-Type"]).isEqualTo("application/json; charset=UTF-8")
+            assertThat(headers.names().size).isEqualTo(2)
+            assertThat(bodyAsText()).isEmpty()
+        }
+    }
+
+    @Test
+    fun `GET cars {id} should return 404 if car does not exist`() = testApplication {
+        client.get("/cars/99").apply {
+            assertThat(status).isEqualTo(HttpStatusCode.NotFound)
+            assertThat(headers["Content-Length"]).isEqualTo("0")
+            assertThat(headers.names().size).isEqualTo(1)
+            assertThat(bodyAsText()).isEmpty()
+        }
+    }
+
+    @Test
+    fun `HEAD cars {id} should return 404 if car does not exist`() = testApplication {
+        client.get("/cars/99").apply {
+            assertThat(status).isEqualTo(HttpStatusCode.NotFound)
+            assertThat(headers["Content-Length"]).isEqualTo("0")
+            assertThat(headers.names().size).isEqualTo(1)
+            assertThat(bodyAsText()).isEmpty()
+        }
+    }
+
 }

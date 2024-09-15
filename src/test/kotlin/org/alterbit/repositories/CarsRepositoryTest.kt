@@ -17,4 +17,22 @@ class CarsRepositoryTest {
             Car(2, "BMW")
         )
     }
+
+    @Test
+    fun `getCar should return car`() {
+        val repository = CarsRepository()
+
+        val result = repository.getCar(1)
+
+        assertThat(result).isEqualTo(Car(1, "Audi"))
+    }
+
+    @Test
+    fun `getCar should return car not found`() {
+        val repository = CarsRepository()
+
+        val result = repository.getCar(99)
+
+        assertThat(result).isNull()
+    }
 }

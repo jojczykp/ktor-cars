@@ -19,4 +19,27 @@ class CarsServiceTest {
 
         assertThat(result).isEqualTo(cars)
     }
+
+    @Test
+    fun `getCar should return car`() {
+        val id = 1
+        val car = Car(id, "Porshe")
+        val repository = mock<CarsRepository> { on { getCar(id) } doReturn car }
+        val service = CarsService(repository)
+
+        val result = service.getCar(1)
+
+        assertThat(result).isEqualTo(car)
+    }
+
+    @Test
+    fun `getCar should return car not found`() {
+        val id = 99
+        val repository = mock<CarsRepository> { on { getCar(id) } doReturn null }
+        val service = CarsService(repository)
+
+        val result = service.getCar(99)
+
+        assertThat(result).isNull()
+    }
 }
