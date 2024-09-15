@@ -16,9 +16,8 @@ fun Application.configureRouting() {
         }
 
         get("/cars/{id}") {
-            call.parameters["id"]!!.toInt()
-                .let { id -> carsService.getCar(id) }
-                .onSuccess { car -> call.respond(car) }
+            runCatching { carsService.getCar(call.parameters["id"]!!.toInt()) }
+                .onSuccess { car -> call.respond(car.getOrThrow()) }
                 .onFailure { call.respond(HttpStatusCode.NotFound) }
         }
     }

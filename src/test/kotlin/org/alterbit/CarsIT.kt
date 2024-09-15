@@ -41,4 +41,13 @@ class CarsIT {
         }
     }
 
+    @Test
+    fun `GET cars {id} should return 404 if incorrect id format specified`() = testApplication {
+        client.get("/cars/invalid-id-format").apply {
+            assertThat(status).isEqualTo(HttpStatusCode.NotFound)
+            assertThat(headers["Content-Length"]).isEqualTo("0")
+            assertThat(headers.names().size).isEqualTo(1)
+            assertThat(bodyAsText()).isEmpty()
+        }
+    }
 }
