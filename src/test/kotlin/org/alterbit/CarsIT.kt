@@ -21,17 +21,6 @@ class CarsIT {
     }
 
     @Test
-    fun `HEAD cars should return all cars headers`() = testApplication {
-        client.head("/cars").apply {
-            assertThat(status).isEqualTo(HttpStatusCode.OK)
-            assertThat(headers["Content-Length"]).isEqualTo("46")
-            assertThat(headers["Content-Type"]).isEqualTo("application/json; charset=UTF-8")
-            assertThat(headers.names().size).isEqualTo(2)
-            assertThat(bodyAsText()).isEmpty()
-        }
-    }
-
-    @Test
     fun `GET cars {id} should return single car`() = testApplication {
         client.get("/cars/1").apply {
             assertThat(status).isEqualTo(HttpStatusCode.OK)
@@ -43,28 +32,7 @@ class CarsIT {
     }
 
     @Test
-    fun `HEAD cars {id} should return single car headers`() = testApplication {
-        client.head("/cars/1").apply {
-            assertThat(status).isEqualTo(HttpStatusCode.OK)
-            assertThat(headers["Content-Length"]).isEqualTo("22")
-            assertThat(headers["Content-Type"]).isEqualTo("application/json; charset=UTF-8")
-            assertThat(headers.names().size).isEqualTo(2)
-            assertThat(bodyAsText()).isEmpty()
-        }
-    }
-
-    @Test
     fun `GET cars {id} should return 404 if car does not exist`() = testApplication {
-        client.get("/cars/99").apply {
-            assertThat(status).isEqualTo(HttpStatusCode.NotFound)
-            assertThat(headers["Content-Length"]).isEqualTo("0")
-            assertThat(headers.names().size).isEqualTo(1)
-            assertThat(bodyAsText()).isEmpty()
-        }
-    }
-
-    @Test
-    fun `HEAD cars {id} should return 404 if car does not exist`() = testApplication {
         client.get("/cars/99").apply {
             assertThat(status).isEqualTo(HttpStatusCode.NotFound)
             assertThat(headers["Content-Length"]).isEqualTo("0")

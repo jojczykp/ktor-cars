@@ -34,7 +34,6 @@ dependencies {
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("io.ktor:ktor-server-config-yaml")
-    implementation("io.ktor:ktor-server-auto-head-response")
 
     // Koin for Dependency Injection
     implementation("io.insert-koin:koin-ktor:$koin_version")
