@@ -1,5 +1,6 @@
 package org.alterbit.services
 
+import io.ktor.server.plugins.*
 import org.alterbit.model.Car
 import org.alterbit.repositories.CarsRepository
 import org.assertj.core.api.Assertions.assertThat
@@ -24,22 +25,22 @@ class CarsServiceTest {
     fun `getCar should return car`() {
         val id = 1
         val car = Car(id, "Porshe")
-        val repository = mock<CarsRepository> { on { getCar(id) } doReturn car }
+        val repository = mock<CarsRepository> { on { getCar(id) } doReturn Result.success(car) }
         val service = CarsService(repository)
 
         val result = service.getCar(1)
 
-        assertThat(result).isEqualTo(car)
+        assertThat(result.getOrThrow()).isEqualTo(car)
     }
 
     @Test
     fun `getCar should return car not found`() {
         val id = 99
-        val repository = mock<CarsRepository> { on { getCar(id) } doReturn null }
+        val repository = mock<CarsRepository> { on { getCar(id) } doReturn Result.failure(NotFoundException()) }
         val service = CarsService(repository)
 
         val result = service.getCar(99)
 
-        assertThat(result).isNull()
+        assertThat(result.isFailure).isTrue()
     }
 }

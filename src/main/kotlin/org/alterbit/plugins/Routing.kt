@@ -19,14 +19,10 @@ fun Application.configureRouting() {
         }
 
         get("/cars/{id}") {
-            val id = call.parameters["id"]!!.toInt()
-            val car = carsService.getCar(id)
-
-            if (car != null) {
-                call.respond(car)
-            } else {
-                call.respond(HttpStatusCode.NotFound)
-            }
+            call.parameters["id"]!!.toInt()
+                .let { id -> carsService.getCar(id) }
+                .onSuccess { car -> call.respond(car) }
+                .onFailure { call.respond(HttpStatusCode.NotFound) }
         }
     }
 }

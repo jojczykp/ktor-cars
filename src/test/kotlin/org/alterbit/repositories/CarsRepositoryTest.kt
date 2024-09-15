@@ -24,7 +24,8 @@ class CarsRepositoryTest {
 
         val result = repository.getCar(1)
 
-        assertThat(result).isEqualTo(Car(1, "Audi"))
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrThrow()).isEqualTo(Car(1, "Audi"))
     }
 
     @Test
@@ -33,6 +34,6 @@ class CarsRepositoryTest {
 
         val result = repository.getCar(99)
 
-        assertThat(result).isNull()
+        assertThat(result.isFailure).isTrue()
     }
 }

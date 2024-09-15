@@ -7,5 +7,5 @@ class CarsService(private val carsRepository: CarsRepository) {
 
     fun getCars(): List<Car> = carsRepository.getCars()
 
-    fun getCar(id: Int): Car? = carsRepository.getCar(id)
+    fun getCar(id: Int): Result<Car> = carsRepository.getCar(id)
 }

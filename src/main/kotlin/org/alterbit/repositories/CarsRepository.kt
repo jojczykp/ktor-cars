@@ -1,5 +1,6 @@
 package org.alterbit.repositories
 
+import io.ktor.server.plugins.*
 import org.alterbit.model.Car
 
 class CarsRepository {
@@ -11,5 +12,10 @@ class CarsRepository {
 
     fun getCars(): List<Car> = cars
 
-    fun getCar(id: Int): Car? = cars.find { it.id == id }
+    fun getCar(id: Int): Result<Car> =
+        cars.find { it.id == id }
+            .let {
+                if (it == null) Result.failure(NotFoundException("Car $id not found"))
+                else Result.success(it)
+            }
 }
