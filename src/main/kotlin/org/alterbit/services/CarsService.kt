@@ -10,4 +10,6 @@ class CarsService(private val carsRepository: CarsRepository) {
     fun getCar(id: Int): Result<Car> = carsRepository.getCar(id)
 
     fun createCar(make: String): Result<Car> = carsRepository.createCar(make)
+
+    fun deleteCar(id: Int) = carsRepository.deleteCar(id)
 }

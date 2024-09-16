@@ -23,6 +23,15 @@ fun Application.configureRouting() {
                 .onFailure { call.respond(HttpStatusCode.NotFound) }
         }
 
+        delete("/cars/{id}") {
+            runCatching { carsService.deleteCar(call.parameters["id"]!!.toInt()) }
+                .onSuccess {
+                    val deleted = it.getOrThrow()
+                    call.respond(if (deleted) HttpStatusCode.NoContent else HttpStatusCode.NotFound)
+                }
+                .onFailure { call.respond(HttpStatusCode.NotFound) }
+        }
+
         post("/cars") {
             val requestBody = call.receive<CreateCarRequest>()
             val make = requestBody.make

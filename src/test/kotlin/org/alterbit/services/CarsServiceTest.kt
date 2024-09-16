@@ -22,7 +22,7 @@ class CarsServiceTest {
     }
 
     @Test
-    fun `getCar should return car`() {
+    fun `getCar should return a car`() {
         val id = 1
         val car = Car(id, "Porshe")
         val repository = mock<CarsRepository> { on { getCar(id) } doReturn Result.success(car) }
@@ -42,6 +42,28 @@ class CarsServiceTest {
         val result = service.getCar(99)
 
         assertThat(result.isFailure).isTrue()
+    }
+
+    @Test
+    fun `deleteCar should delete a car`() {
+        val id = 2
+        val repository = mock<CarsRepository> { on { deleteCar(id) } doReturn Result.success(true) }
+        val service = CarsService(repository)
+
+        val result = service.deleteCar(id)
+
+        assertThat(result.getOrThrow()).isTrue()
+    }
+
+    @Test
+    fun `deleteCar should return car not found`() {
+        val id = 99
+        val repository = mock<CarsRepository> { on { deleteCar(id) } doReturn Result.success(false) }
+        val service = CarsService(repository)
+
+        val result = service.deleteCar(id)
+
+        assertThat(result.getOrThrow()).isFalse()
     }
 
     @Test

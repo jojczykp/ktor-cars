@@ -25,4 +25,8 @@ class CarsRepository {
             .let { newId -> Car(newId, make) }
             .let { newCar -> cars.add(newCar); newCar }
             .let { newCar -> Result.success(newCar) }
+
+    fun deleteCar(id: Int): Result<Boolean> =
+        cars.removeIf { it.id == id }
+            .let { Result.success(it) }
 }

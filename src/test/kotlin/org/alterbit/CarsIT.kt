@@ -52,6 +52,37 @@ class CarsIT {
     }
 
     @Test
+    fun `DELETE cars {id} should delete a car`() = testApplication {
+        client.delete("/cars/2").apply {
+            assertThat(status).isEqualTo(HttpStatusCode.NoContent)
+            assertThat(headers["Content-Length"]).isEqualTo("0")
+            assertThat(headers.names().size).isEqualTo(1)
+            assertThat(bodyAsText()).isEmpty()
+            assertThat(client.get("/cars/2").status).isEqualTo(HttpStatusCode.NotFound)
+        }
+    }
+
+    @Test
+    fun `DELETE cars {id} should return 404 if car does not exist`() = testApplication {
+        client.delete("/cars/99").apply {
+            assertThat(status).isEqualTo(HttpStatusCode.NotFound)
+            assertThat(headers["Content-Length"]).isEqualTo("0")
+            assertThat(headers.names().size).isEqualTo(1)
+            assertThat(bodyAsText()).isEmpty()
+        }
+    }
+
+    @Test
+    fun `DELETE cars {id} should return 404 if incorrect id format specified`() = testApplication {
+        client.delete("/cars/invalid-id-format").apply {
+            assertThat(status).isEqualTo(HttpStatusCode.NotFound)
+            assertThat(headers["Content-Length"]).isEqualTo("0")
+            assertThat(headers.names().size).isEqualTo(1)
+            assertThat(bodyAsText()).isEmpty()
+        }
+    }
+
+    @Test
     fun `POST car should create a new car`() = testApplication {
         client.post("/cars") {
             contentType(ContentType.Application.Json)

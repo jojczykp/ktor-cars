@@ -19,7 +19,7 @@ class CarsRepositoryTest {
     }
 
     @Test
-    fun `getCar should return car`() {
+    fun `getCar should return a car`() {
         val repository = CarsRepository()
 
         val result = repository.getCar(1)
@@ -30,6 +30,25 @@ class CarsRepositoryTest {
 
     @Test
     fun `getCar should return car not found`() {
+        val repository = CarsRepository()
+
+        val result = repository.getCar(99)
+
+        assertThat(result.isFailure).isTrue()
+    }
+
+    @Test
+    fun `deleteCar should delete a car`() {
+        val repository = CarsRepository()
+
+        val result = repository.deleteCar(2)
+
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrThrow()).isTrue()
+    }
+
+    @Test
+    fun `deleteCar should return car not found`() {
         val repository = CarsRepository()
 
         val result = repository.getCar(99)
