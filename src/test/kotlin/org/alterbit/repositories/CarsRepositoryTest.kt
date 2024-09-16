@@ -36,4 +36,16 @@ class CarsRepositoryTest {
 
         assertThat(result.isFailure).isTrue()
     }
+
+    @Test
+    fun `createCar should create a new car`() {
+        val repository = CarsRepository()
+
+        val result = repository.createCar("Kia")
+
+        val expectedCar = Car(3, "Kia")
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrThrow()).isEqualTo(expectedCar)
+        assertThat(repository.getCars()).contains(expectedCar)
+    }
 }

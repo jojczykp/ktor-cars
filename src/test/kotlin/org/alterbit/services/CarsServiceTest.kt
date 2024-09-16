@@ -43,4 +43,17 @@ class CarsServiceTest {
 
         assertThat(result.isFailure).isTrue()
     }
+
+    @Test
+    fun `createCar should create a new car`() {
+        val make = "Kia"
+        val car = Car(7, make)
+        val repository = mock<CarsRepository> { on { createCar(make) } doReturn Result.success(car) }
+        val service = CarsService(repository)
+
+        val result = service.createCar(make)
+
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrThrow()).isEqualTo(car)
+    }
 }

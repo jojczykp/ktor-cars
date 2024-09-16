@@ -18,4 +18,11 @@ class CarsRepository {
                 if (it == null) Result.failure(NotFoundException("Car $id not found"))
                 else Result.success(it)
             }
+
+    fun createCar(make: String): Result<Car> =
+        cars.maxOfOrNull { existingCar -> existingCar.id }
+            .let { lastId -> (lastId ?: 0) + 1 }
+            .let { newId -> Car(newId, make) }
+            .let { newCar -> cars.add(newCar); newCar }
+            .let { newCar -> Result.success(newCar) }
 }
