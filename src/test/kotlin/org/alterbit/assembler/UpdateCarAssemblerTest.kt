@@ -1,17 +1,20 @@
-package org.alterbit.dto
+package org.alterbit.assembler
 
+import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.rest.UpdateCarRequest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class UpdateCarCommandTest {
+class UpdateCarAssemblerTest {
+    
+    private val assembler = UpdateCarAssembler()
 
     @Test
     fun `should create command from request propagating all fields`() {
         val id = 7
         val request = UpdateCarRequest("make", "colour")
 
-        val command = UpdateCarCommand.fromRequest(id, request)
+        val command = assembler.requestToCommand(id, request)
 
         assertThat(command).isEqualTo(UpdateCarCommand(id, "make", "colour"))
     }
@@ -21,7 +24,7 @@ class UpdateCarCommandTest {
         val id = 7
         val request = UpdateCarRequest()
 
-        val command = UpdateCarCommand.fromRequest(id, request)
+        val command = assembler.requestToCommand(id, request)
 
         assertThat(command).isEqualTo(UpdateCarCommand(id))
     }
@@ -31,7 +34,7 @@ class UpdateCarCommandTest {
         val id = 7
         val request = UpdateCarRequest(make = "make")
 
-        val command = UpdateCarCommand.fromRequest(id, request)
+        val command = assembler.requestToCommand(id, request)
 
         assertThat(command).isEqualTo(UpdateCarCommand(id = id, make = "make"))
     }
@@ -41,7 +44,7 @@ class UpdateCarCommandTest {
         val id = 7
         val request = UpdateCarRequest(colour = "Pink")
 
-        val command = UpdateCarCommand.fromRequest(id, request)
+        val command = assembler.requestToCommand(id, request)
 
         assertThat(command).isEqualTo(UpdateCarCommand(id = id, colour = "Pink"))
     }

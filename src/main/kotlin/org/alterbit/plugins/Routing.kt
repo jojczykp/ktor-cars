@@ -5,8 +5,8 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.alterbit.dto.CreateCarCommand
-import org.alterbit.dto.UpdateCarCommand
+import org.alterbit.assembler.CreateCarAssembler
+import org.alterbit.assembler.UpdateCarAssembler
 import org.alterbit.rest.CreateCarRequest
 import org.alterbit.rest.UpdateCarRequest
 import org.alterbit.services.CarsService
@@ -15,6 +15,8 @@ import org.koin.ktor.ext.inject
 fun Application.configureRouting() {
     routing {
         val carsService: CarsService by inject()
+        val createCarsAssembler: CreateCarAssembler by inject()
+        val updateCarsAssembler: UpdateCarAssembler by inject()
 
         get("/cars") {
             call.respond(carsService.getCars())
@@ -37,7 +39,7 @@ fun Application.configureRouting() {
 
         post("/cars") {
             val requestBody = call.receive<CreateCarRequest>()
-            val command = CreateCarCommand.fromRequest(requestBody)
+            val command = createCarsAssembler.requestToCommand(requestBody)
             val newCar = carsService.createCar(command)
             newCar.onSuccess { call.respond(HttpStatusCode.Created, it) }
         }
@@ -46,7 +48,7 @@ fun Application.configureRouting() {
             runCatching { call.parameters["id"]!!.toInt() }
                 .onSuccess { id ->
                     val requestBody = call.receive<UpdateCarRequest>()
-                    val command = UpdateCarCommand.fromRequest(id, requestBody)
+                    val command = updateCarsAssembler.requestToCommand(id, requestBody)
                     val updatedCar = carsService.updateCar(command)
                     updatedCar.onSuccess { call.respond(HttpStatusCode.OK, it) }
 

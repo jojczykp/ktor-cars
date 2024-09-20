@@ -1,16 +1,19 @@
-package org.alterbit.dto
+package org.alterbit.assembler
 
+import org.alterbit.dto.CreateCarCommand
 import org.alterbit.rest.CreateCarRequest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class CreateCarCommandTest {
+class CreateCarAssemblerTest {
+
+    private val assembler = CreateCarAssembler()
 
     @Test
-    fun `should create command from request propagating all fields`() {
+    fun `should create command from request`() {
         val request = CreateCarRequest("make", "colour")
 
-        val command = CreateCarCommand.fromRequest(request)
+        val command = assembler.requestToCommand(request)
 
         assertThat(command).isEqualTo(CreateCarCommand("make", "colour"))
     }
