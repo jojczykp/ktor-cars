@@ -1,6 +1,7 @@
 package org.alterbit.services
 
 import io.ktor.server.plugins.*
+import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.model.Car
 import org.alterbit.repositories.CarsRepository
 import org.assertj.core.api.Assertions.assertThat
@@ -85,11 +86,12 @@ class CarsServiceTest {
         val id = 8
         val make = "Rolls Royce"
         val colour = "Violet"
+        val command = UpdateCarCommand(id, make, colour)
         val car = Car(id, make, colour)
-        val repository = mock<CarsRepository> { on { updateCar(id, make, colour) } doReturn Result.success(car) }
+        val repository = mock<CarsRepository> { on { updateCar(command) } doReturn Result.success(car) }
         val service = CarsService(repository)
 
-        val result = service.updateCar(id, make, colour)
+        val result = service.updateCar(command)
 
         assertThat(result.isSuccess).isTrue()
         assertThat(result.getOrThrow()).isEqualTo(car)
@@ -100,10 +102,11 @@ class CarsServiceTest {
         val id = 99
         val make = "Cadillac"
         val colour = "Grey"
-        val repository = mock<CarsRepository> { on { updateCar(id, make, colour) } doReturn Result.failure(NotFoundException()) }
+        val command = UpdateCarCommand(id, make, colour)
+        val repository = mock<CarsRepository> { on { updateCar(command) } doReturn Result.failure(NotFoundException()) }
         val service = CarsService(repository)
 
-        val result = service.updateCar(id, make, colour)
+        val result = service.updateCar(command)
 
         assertThat(result.isFailure).isTrue()
     }

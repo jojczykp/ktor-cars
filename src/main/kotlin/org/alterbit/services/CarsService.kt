@@ -1,5 +1,6 @@
 package org.alterbit.services
 
+import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.repositories.CarsRepository
 import org.alterbit.model.Car
 
@@ -13,5 +14,5 @@ class CarsService(private val carsRepository: CarsRepository) {
 
     fun deleteCar(id: Int): Result<Boolean> = carsRepository.deleteCar(id)
 
-    fun updateCar(id: Int, make: String?, colour: String?): Result<Car> = carsRepository.updateCar(id, make, colour)
+    fun updateCar(command: UpdateCarCommand): Result<Car> = carsRepository.updateCar(command)
 }

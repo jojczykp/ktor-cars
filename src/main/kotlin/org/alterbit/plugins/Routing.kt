@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.rest.CreateCarRequest
 import org.alterbit.rest.UpdateCarRequest
 import org.alterbit.services.CarsService
@@ -45,9 +46,8 @@ fun Application.configureRouting() {
             runCatching { call.parameters["id"]!!.toInt() }
                 .onSuccess { id ->
                     val requestBody = call.receive<UpdateCarRequest>()
-                    val make = requestBody.make
-                    val colour = requestBody.colour
-                    val updatedCar = carsService.updateCar(id, make, colour)
+                    val command = UpdateCarCommand.fromRequest(id, requestBody)
+                    val updatedCar = carsService.updateCar(command)
                     updatedCar.onSuccess { call.respond(HttpStatusCode.OK, it) }
 
                 }

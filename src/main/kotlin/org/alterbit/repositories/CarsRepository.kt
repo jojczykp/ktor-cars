@@ -1,6 +1,7 @@
 package org.alterbit.repositories
 
 import io.ktor.server.plugins.*
+import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.model.Car
 
 class CarsRepository {
@@ -34,14 +35,14 @@ class CarsRepository {
         cars.remove(id)
             .let { Result.success(it != null) }
 
-    fun updateCar(id: Int, make: String? = null, colour: String? = null): Result<Car> =
-        cars[id]
+    fun updateCar(command: UpdateCarCommand): Result<Car> =
+        cars[command.id]
             .let { originalCar ->
-                if (originalCar == null) Result.failure(NotFoundException("Car $id not found"))
+                if (originalCar == null) Result.failure(NotFoundException("Car ${command.id} not found"))
                 else {
                     val updatedCar = originalCar.copy(
-                        make = make ?: originalCar.make,
-                        colour = colour ?: originalCar.colour
+                        make = command.make ?: originalCar.make,
+                        colour = command.colour ?: originalCar.colour
                     )
                     cars[updatedCar.id] = updatedCar
                     Result.success(updatedCar)

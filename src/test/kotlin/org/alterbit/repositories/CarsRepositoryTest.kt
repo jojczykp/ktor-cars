@@ -1,5 +1,6 @@
 package org.alterbit.repositories
 
+import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.model.Car
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -74,8 +75,9 @@ class CarsRepositoryTest {
     @Test
     fun `updateCar should update all car properties`() {
         val repository = CarsRepository()
+        val command = UpdateCarCommand(3, "Alfa Romeo", "Amber")
 
-        val result = repository.updateCar(3, "Alfa Romeo", "Amber")
+        val result = repository.updateCar(command)
 
         val expectedCar = Car(3, "Alfa Romeo", "Amber")
         assertThat(result.isSuccess).isTrue()
@@ -86,8 +88,9 @@ class CarsRepositoryTest {
     @Test
     fun `updateCar should update make`() {
         val repository = CarsRepository()
+        val command = UpdateCarCommand(id = 4, make = "Cupra")
 
-        val result = repository.updateCar(id = 4, make = "Cupra")
+        val result = repository.updateCar(command)
 
         val expectedCar = Car(4, "Cupra", "Brown")
         assertThat(result.isSuccess).isTrue()
@@ -98,8 +101,9 @@ class CarsRepositoryTest {
     @Test
     fun `updateCar should update colour`() {
         val repository = CarsRepository()
+        val command = UpdateCarCommand(id = 5, colour = "White")
 
-        val result = repository.updateCar(5, colour = "White")
+        val result = repository.updateCar(command)
 
         val expectedCar = Car(5, "Ford", "White")
         assertThat(result.isSuccess).isTrue()
@@ -110,8 +114,9 @@ class CarsRepositoryTest {
     @Test
     fun `updateCar should return car not found`() {
         val repository = CarsRepository()
+        val command = UpdateCarCommand(id = 99)
 
-        val result = repository.updateCar(99, "Mitsubishi", "Silver")
+        val result = repository.updateCar(command)
 
         assertThat(result.isFailure).isTrue()
     }
