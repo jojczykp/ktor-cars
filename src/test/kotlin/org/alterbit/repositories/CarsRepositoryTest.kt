@@ -1,5 +1,6 @@
 package org.alterbit.repositories
 
+import org.alterbit.dto.CreateCarCommand
 import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.model.Car
 import org.assertj.core.api.Assertions.assertThat
@@ -63,8 +64,9 @@ class CarsRepositoryTest {
     @Test
     fun `createCar should create a new car`() {
         val repository = CarsRepository()
+        val command = CreateCarCommand("Kia", "Yellow")
 
-        val result = repository.createCar("Kia", "Yellow")
+        val result = repository.createCar(command)
 
         val expectedCar = Car(6, "Kia", "Yellow")
         assertThat(result.isSuccess).isTrue()

@@ -1,6 +1,7 @@
 package org.alterbit.services
 
 import io.ktor.server.plugins.*
+import org.alterbit.dto.CreateCarCommand
 import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.model.Car
 import org.alterbit.repositories.CarsRepository
@@ -72,10 +73,11 @@ class CarsServiceTest {
         val make = "Kia"
         val colour = "Indigo"
         val car = Car(7, make, colour)
-        val repository = mock<CarsRepository> { on { createCar(make, colour) } doReturn Result.success(car) }
+        val command = CreateCarCommand(make, colour)
+        val repository = mock<CarsRepository> { on { createCar(command) } doReturn Result.success(car) }
         val service = CarsService(repository)
 
-        val result = service.createCar(make, colour)
+        val result = service.createCar(command)
 
         assertThat(result.isSuccess).isTrue()
         assertThat(result.getOrThrow()).isEqualTo(car)

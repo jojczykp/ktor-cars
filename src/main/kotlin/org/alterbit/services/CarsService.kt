@@ -1,8 +1,9 @@
 package org.alterbit.services
 
+import org.alterbit.dto.CreateCarCommand
 import org.alterbit.dto.UpdateCarCommand
-import org.alterbit.repositories.CarsRepository
 import org.alterbit.model.Car
+import org.alterbit.repositories.CarsRepository
 
 class CarsService(private val carsRepository: CarsRepository) {
 
@@ -10,7 +11,7 @@ class CarsService(private val carsRepository: CarsRepository) {
 
     fun getCar(id: Int): Result<Car> = carsRepository.getCar(id)
 
-    fun createCar(make: String, colour: String): Result<Car> = carsRepository.createCar(make, colour)
+    fun createCar(command: CreateCarCommand): Result<Car> = carsRepository.createCar(command)
 
     fun deleteCar(id: Int): Result<Boolean> = carsRepository.deleteCar(id)
 

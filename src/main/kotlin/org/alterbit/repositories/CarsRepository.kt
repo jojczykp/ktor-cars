@@ -1,6 +1,7 @@
 package org.alterbit.repositories
 
 import io.ktor.server.plugins.*
+import org.alterbit.dto.CreateCarCommand
 import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.model.Car
 
@@ -23,11 +24,11 @@ class CarsRepository {
                 else Result.success(it)
             }
 
-    fun createCar(make: String, colour: String): Result<Car> =
+    fun createCar(command: CreateCarCommand): Result<Car> =
         cars.keys
             .maxOrNull()
             .let { lastId -> (lastId ?: 0) + 1 }
-            .let { newId -> Car(newId, make, colour) }
+            .let { newId -> Car(newId, command.make, command.colour) }
             .let { newCar -> cars[newCar.id] = newCar; newCar }
             .let { newCar -> Result.success(newCar) }
 
