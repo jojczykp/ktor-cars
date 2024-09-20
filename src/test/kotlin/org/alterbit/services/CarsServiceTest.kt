@@ -12,7 +12,7 @@ class CarsServiceTest {
 
     @Test
     fun `getCars should return cars`() {
-        val cars = mutableListOf(Car(1, "Porshe"), Car(2, "Lamborgini"))
+        val cars = setOf(Car(1, "Porsche"), Car(2, "Lamborghini"))
         val repository = mock<CarsRepository> { on { getCars() } doReturn cars }
         val service = CarsService(repository)
 
@@ -24,7 +24,7 @@ class CarsServiceTest {
     @Test
     fun `getCar should return a car`() {
         val id = 1
-        val car = Car(id, "Porshe")
+        val car = Car(id, "Porsche")
         val repository = mock<CarsRepository> { on { getCar(id) } doReturn Result.success(car) }
         val service = CarsService(repository)
 
@@ -77,5 +77,31 @@ class CarsServiceTest {
 
         assertThat(result.isSuccess).isTrue()
         assertThat(result.getOrThrow()).isEqualTo(car)
+    }
+
+    @Test
+    fun `updateCar should update a car`() {
+        val id = 8
+        val make = "Rolls Royce"
+        val car = Car(id, make)
+        val repository = mock<CarsRepository> { on { updateCar(id, make) } doReturn Result.success(car) }
+        val service = CarsService(repository)
+
+        val result = service.updateCar(id, make)
+
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrThrow()).isEqualTo(car)
+    }
+
+    @Test
+    fun `updateCar should return car not found`() {
+        val id = 99
+        val make = "Cadillac"
+        val repository = mock<CarsRepository> { on { updateCar(id, make) } doReturn Result.failure(NotFoundException()) }
+        val service = CarsService(repository)
+
+        val result = service.updateCar(id, make)
+
+        assertThat(result.isFailure).isTrue()
     }
 }

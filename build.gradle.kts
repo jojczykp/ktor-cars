@@ -48,6 +48,7 @@ dependencies {
 
     // Tests
     testImplementation("io.ktor:ktor-server-test-host-jvm")
+    testImplementation("io.ktor:ktor-client-content-negotiation-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("org.mockito.kotlin:mockito-kotlin:$mockito_version")
     testImplementation("org.assertj:assertj-core:$assertj_version")

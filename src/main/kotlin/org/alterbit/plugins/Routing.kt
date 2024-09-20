@@ -6,6 +6,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.alterbit.rest.CreateCarRequest
+import org.alterbit.rest.UpdateCarRequest
 import org.alterbit.services.CarsService
 import org.koin.ktor.ext.inject
 
@@ -37,6 +38,18 @@ fun Application.configureRouting() {
             val make = requestBody.make
             val newCar = carsService.createCar(make)
             newCar.onSuccess { call.respond(HttpStatusCode.Created, it) }
+        }
+
+        put("/cars/{id}") {
+            runCatching { call.parameters["id"]!!.toInt() }
+                .onSuccess { id ->
+                    val requestBody = call.receive<UpdateCarRequest>()
+                    val make = requestBody.make
+                    val updatedCar = carsService.updateCar(id, make)
+                    updatedCar.onSuccess { call.respond(HttpStatusCode.OK, it) }
+
+                }
+                .onFailure { call.respond(HttpStatusCode.NotFound) }
         }
     }
 }

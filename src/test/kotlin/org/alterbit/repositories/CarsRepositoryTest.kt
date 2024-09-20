@@ -14,7 +14,8 @@ class CarsRepositoryTest {
 
         assertThat(result).containsExactly(
             Car(1, "Audi"),
-            Car(2, "BMW")
+            Car(2, "BMW"),
+            Car(3, "Lexus")
         )
     }
 
@@ -62,9 +63,30 @@ class CarsRepositoryTest {
 
         val result = repository.createCar("Kia")
 
-        val expectedCar = Car(3, "Kia")
+        val expectedCar = Car(4, "Kia")
         assertThat(result.isSuccess).isTrue()
         assertThat(result.getOrThrow()).isEqualTo(expectedCar)
         assertThat(repository.getCars()).contains(expectedCar)
+    }
+
+    @Test
+    fun `updateCar should update a car`() {
+        val repository = CarsRepository()
+
+        val result = repository.updateCar(3, "Alfa Romeo")
+
+        val expectedCar = Car(3, "Alfa Romeo")
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrThrow()).isEqualTo(expectedCar)
+        assertThat(repository.getCars()).contains(expectedCar)
+    }
+
+    @Test
+    fun `updateCar should return car not found`() {
+        val repository = CarsRepository()
+
+        val result = repository.updateCar(99, "Mitsubishi")
+
+        assertThat(result.isFailure).isTrue()
     }
 }
