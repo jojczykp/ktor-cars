@@ -7,13 +7,13 @@ import org.alterbit.model.Car
 
 class CarsRepository {
 
-    private val cars = mutableMapOf(
-        1 to Car(1, "Audi", "Red"),
-        2 to Car(2, "BMW", "Blue"),
-        3 to Car(3, "Lexus", "Pink"),
-        4 to Car(4, "Renault", "Brown"),
-        5 to Car(5, "Ford", "Green")
-    )
+    private val cars = listOf(
+        Car(1, "Audi", "Red"),
+        Car(2, "BMW", "Blue"),
+        Car(3, "Lexus", "Pink"),
+        Car(4, "Renault", "Brown"),
+        Car(5, "Ford", "Green")
+    ).associateBy { it.id }.toMutableMap()
 
     fun getCars(): Set<Car> = cars.values.toSet()
 
