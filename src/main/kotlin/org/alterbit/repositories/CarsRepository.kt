@@ -6,9 +6,11 @@ import org.alterbit.model.Car
 class CarsRepository {
 
     private val cars = mutableMapOf(
-        1 to Car(1, "Audi"),
-        2 to Car(2, "BMW"),
-        3 to Car(3, "Lexus")
+        1 to Car(1, "Audi", "Red"),
+        2 to Car(2, "BMW", "Blue"),
+        3 to Car(3, "Lexus", "Pink"),
+        4 to Car(4, "Renault", "Brown"),
+        5 to Car(5, "Ford", "Green")
     )
 
     fun getCars(): Set<Car> = cars.values.toSet()
@@ -20,11 +22,11 @@ class CarsRepository {
                 else Result.success(it)
             }
 
-    fun createCar(make: String): Result<Car> =
+    fun createCar(make: String, colour: String): Result<Car> =
         cars.keys
             .maxOrNull()
             .let { lastId -> (lastId ?: 0) + 1 }
-            .let { newId -> Car(newId, make) }
+            .let { newId -> Car(newId, make, colour) }
             .let { newCar -> cars[newCar.id] = newCar; newCar }
             .let { newCar -> Result.success(newCar) }
 
@@ -32,12 +34,15 @@ class CarsRepository {
         cars.remove(id)
             .let { Result.success(it != null) }
 
-    fun updateCar(id: Int, make: String): Result<Car> =
+    fun updateCar(id: Int, make: String? = null, colour: String? = null): Result<Car> =
         cars[id]
             .let { originalCar ->
                 if (originalCar == null) Result.failure(NotFoundException("Car $id not found"))
                 else {
-                    val updatedCar = originalCar.copy(make = make)
+                    val updatedCar = originalCar.copy(
+                        make = make ?: originalCar.make,
+                        colour = colour ?: originalCar.colour
+                    )
                     cars[updatedCar.id] = updatedCar
                     Result.success(updatedCar)
                 }

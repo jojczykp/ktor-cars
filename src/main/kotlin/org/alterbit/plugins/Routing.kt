@@ -36,7 +36,8 @@ fun Application.configureRouting() {
         post("/cars") {
             val requestBody = call.receive<CreateCarRequest>()
             val make = requestBody.make
-            val newCar = carsService.createCar(make)
+            val colour = requestBody.colour
+            val newCar = carsService.createCar(make, colour)
             newCar.onSuccess { call.respond(HttpStatusCode.Created, it) }
         }
 
@@ -45,7 +46,8 @@ fun Application.configureRouting() {
                 .onSuccess { id ->
                     val requestBody = call.receive<UpdateCarRequest>()
                     val make = requestBody.make
-                    val updatedCar = carsService.updateCar(id, make)
+                    val colour = requestBody.colour
+                    val updatedCar = carsService.updateCar(id, make, colour)
                     updatedCar.onSuccess { call.respond(HttpStatusCode.OK, it) }
 
                 }

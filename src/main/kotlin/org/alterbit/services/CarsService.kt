@@ -9,9 +9,9 @@ class CarsService(private val carsRepository: CarsRepository) {
 
     fun getCar(id: Int): Result<Car> = carsRepository.getCar(id)
 
-    fun createCar(make: String): Result<Car> = carsRepository.createCar(make)
+    fun createCar(make: String, colour: String): Result<Car> = carsRepository.createCar(make, colour)
 
     fun deleteCar(id: Int): Result<Boolean> = carsRepository.deleteCar(id)
 
-    fun updateCar(id: Int, make: String): Result<Car> = carsRepository.updateCar(id, make)
+    fun updateCar(id: Int, make: String?, colour: String?): Result<Car> = carsRepository.updateCar(id, make, colour)
 }

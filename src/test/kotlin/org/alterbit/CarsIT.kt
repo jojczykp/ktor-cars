@@ -17,10 +17,10 @@ class CarsIT {
     fun `GET cars should return all cars`() = testApplication {
         client.get("/cars").apply {
             assertThat(status).isEqualTo(HttpStatusCode.OK)
-            assertThat(headers["Content-Length"]).isEqualTo("70")
+            assertThat(headers["Content-Length"]).isEqualTo("200")
             assertThat(headers["Content-Type"]).isEqualTo("application/json; charset=UTF-8")
             assertThat(headers.names().size).isEqualTo(2)
-            assertThat(bodyAsText()).isEqualTo("""[{"id":1,"make":"Audi"},{"id":2,"make":"BMW"},{"id":3,"make":"Lexus"}]""")
+            assertThat(bodyAsText()).isEqualTo("""[{"id":1,"make":"Audi","colour":"Red"},{"id":2,"make":"BMW","colour":"Blue"},{"id":3,"make":"Lexus","colour":"Pink"},{"id":4,"make":"Renault","colour":"Brown"},{"id":5,"make":"Ford","colour":"Green"}]""")
         }
     }
 
@@ -28,10 +28,10 @@ class CarsIT {
     fun `GET cars {id} should return a car`() = testApplication {
         client.get("/cars/1").apply {
             assertThat(status).isEqualTo(HttpStatusCode.OK)
-            assertThat(headers["Content-Length"]).isEqualTo("22")
+            assertThat(headers["Content-Length"]).isEqualTo("37")
             assertThat(headers["Content-Type"]).isEqualTo("application/json; charset=UTF-8")
             assertThat(headers.names().size).isEqualTo(2)
-            assertThat(bodyAsText()).isEqualTo("""{"id":1,"make":"Audi"}""")
+            assertThat(bodyAsText()).isEqualTo("""{"id":1,"make":"Audi","colour":"Red"}""")
         }
     }
 
@@ -90,14 +90,14 @@ class CarsIT {
     fun `POST car should create a new car`() = testApplication {
         client.post("/cars") {
             contentType(ContentType.Application.Json)
-            setBody("""{"make":"Dacia"}""")
+            setBody("""{"make":"Dacia","colour":"Red"}""")
         }.apply {
             assertThat(status).isEqualTo(HttpStatusCode.Created)
-            assertThat(headers["Content-Length"]).isEqualTo("23")
+            assertThat(headers["Content-Length"]).isEqualTo("38")
             assertThat(headers["Content-Type"]).isEqualTo("application/json; charset=UTF-8")
             assertThat(headers.names().size).isEqualTo(2)
-            assertThat(bodyAsText()).isEqualTo("""{"id":4,"make":"Dacia"}""")
-            assertThat(client.get("/cars/4").bodyAsText()).isEqualTo("""{"id":4,"make":"Dacia"}""")
+            assertThat(bodyAsText()).isEqualTo("""{"id":6,"make":"Dacia","colour":"Red"}""")
+            assertThat(client.get("/cars/6").bodyAsText()).isEqualTo("""{"id":6,"make":"Dacia","colour":"Red"}""")
         }
     }
 
@@ -144,21 +144,21 @@ class CarsIT {
         val client = createClient { install(ContentNegotiation) { json() } }
         val id = client.post("/cars") {
             contentType(ContentType.Application.Json)
-            setBody("""{"make":"Toyota"}""")
+            setBody("""{"make":"Toyota","colour":"Blue"}""")
         }.body<Car>().id
 
         val response = client.put("/cars/${id}") {
             contentType(ContentType.Application.Json)
-            setBody("""{"make":"Hyundai"}""")
+            setBody("""{"make":"Hyundai","colour":"Blue"}""")
         }
 
         assertThat(response.status).isEqualTo(HttpStatusCode.OK)
-        assertThat(response.headers["Content-Length"]).isEqualTo("25")
+        assertThat(response.headers["Content-Length"]).isEqualTo("41")
         assertThat(response.headers["Content-Type"]).isEqualTo("application/json; charset=UTF-8")
         assertThat(response.headers.names().size).isEqualTo(2)
-        assertThat(response.bodyAsText()).isEqualTo("""{"id":${id},"make":"Hyundai"}""")
+        assertThat(response.bodyAsText()).isEqualTo("""{"id":${id},"make":"Hyundai","colour":"Blue"}""")
         assertThat(client.get("/cars/${id}").bodyAsText())
-            .isEqualTo("""{"id":${id},"make":"Hyundai"}""")
+            .isEqualTo("""{"id":${id},"make":"Hyundai","colour":"Blue"}""")
 
     }
 

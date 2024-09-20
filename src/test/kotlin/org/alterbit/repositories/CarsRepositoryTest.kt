@@ -13,9 +13,11 @@ class CarsRepositoryTest {
         val result = repository.getCars()
 
         assertThat(result).containsExactly(
-            Car(1, "Audi"),
-            Car(2, "BMW"),
-            Car(3, "Lexus")
+            Car(1, "Audi", "Red"),
+            Car(2, "BMW", "Blue"),
+            Car(3, "Lexus", "Pink"),
+            Car(4, "Renault", "Brown"),
+            Car(5, "Ford", "Green")
         )
     }
 
@@ -26,7 +28,7 @@ class CarsRepositoryTest {
         val result = repository.getCar(1)
 
         assertThat(result.isSuccess).isTrue()
-        assertThat(result.getOrThrow()).isEqualTo(Car(1, "Audi"))
+        assertThat(result.getOrThrow()).isEqualTo(Car(1, "Audi", "Red"))
     }
 
     @Test
@@ -61,21 +63,45 @@ class CarsRepositoryTest {
     fun `createCar should create a new car`() {
         val repository = CarsRepository()
 
-        val result = repository.createCar("Kia")
+        val result = repository.createCar("Kia", "Yellow")
 
-        val expectedCar = Car(4, "Kia")
+        val expectedCar = Car(6, "Kia", "Yellow")
         assertThat(result.isSuccess).isTrue()
         assertThat(result.getOrThrow()).isEqualTo(expectedCar)
         assertThat(repository.getCars()).contains(expectedCar)
     }
 
     @Test
-    fun `updateCar should update a car`() {
+    fun `updateCar should update all car properties`() {
         val repository = CarsRepository()
 
-        val result = repository.updateCar(3, "Alfa Romeo")
+        val result = repository.updateCar(3, "Alfa Romeo", "Amber")
 
-        val expectedCar = Car(3, "Alfa Romeo")
+        val expectedCar = Car(3, "Alfa Romeo", "Amber")
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrThrow()).isEqualTo(expectedCar)
+        assertThat(repository.getCars()).contains(expectedCar)
+    }
+
+    @Test
+    fun `updateCar should update make`() {
+        val repository = CarsRepository()
+
+        val result = repository.updateCar(id = 4, make = "Cupra")
+
+        val expectedCar = Car(4, "Cupra", "Brown")
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrThrow()).isEqualTo(expectedCar)
+        assertThat(repository.getCars()).contains(expectedCar)
+    }
+
+    @Test
+    fun `updateCar should update colour`() {
+        val repository = CarsRepository()
+
+        val result = repository.updateCar(5, colour = "White")
+
+        val expectedCar = Car(5, "Ford", "White")
         assertThat(result.isSuccess).isTrue()
         assertThat(result.getOrThrow()).isEqualTo(expectedCar)
         assertThat(repository.getCars()).contains(expectedCar)
@@ -85,7 +111,7 @@ class CarsRepositoryTest {
     fun `updateCar should return car not found`() {
         val repository = CarsRepository()
 
-        val result = repository.updateCar(99, "Mitsubishi")
+        val result = repository.updateCar(99, "Mitsubishi", "Silver")
 
         assertThat(result.isFailure).isTrue()
     }
