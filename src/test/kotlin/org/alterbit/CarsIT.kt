@@ -7,7 +7,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
-import org.alterbit.model.Car
+import org.alterbit.rest.CarResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -145,7 +145,7 @@ class CarsIT {
         val id = client.post("/cars") {
             contentType(ContentType.Application.Json)
             setBody("""{"make":"Toyota","colour":"Blue"}""")
-        }.body<Car>().id
+        }.body<CarResponse>().id
 
         val response = client.put("/cars/${id}") {
             contentType(ContentType.Application.Json)

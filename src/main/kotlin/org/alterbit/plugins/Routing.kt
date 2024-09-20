@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.alterbit.assembler.CarResponseAssembler
 import org.alterbit.assembler.CreateCarAssembler
 import org.alterbit.assembler.UpdateCarAssembler
 import org.alterbit.rest.CreateCarRequest
@@ -15,16 +16,24 @@ import org.koin.ktor.ext.inject
 fun Application.configureRouting() {
     routing {
         val carsService: CarsService by inject()
+
         val createCarsAssembler: CreateCarAssembler by inject()
         val updateCarsAssembler: UpdateCarAssembler by inject()
+        val carResponseAssembler: CarResponseAssembler by inject()
 
         get("/cars") {
-            call.respond(carsService.getCars())
+            val responseBody = carsService.getCars()
+                .map { carResponseAssembler.carToResponse(it) }
+            call.respond(responseBody)
         }
 
         get("/cars/{id}") {
             runCatching { carsService.getCar(call.parameters["id"]!!.toInt()) }
-                .onSuccess { car -> call.respond(car.getOrThrow()) }
+                .onSuccess {
+                    val car = it.getOrThrow()
+                    val responseBody = carResponseAssembler.carToResponse(car)
+                    call.respond(responseBody)
+                }
                 .onFailure { call.respond(HttpStatusCode.NotFound) }
         }
 
@@ -41,7 +50,10 @@ fun Application.configureRouting() {
             val requestBody = call.receive<CreateCarRequest>()
             val command = createCarsAssembler.requestToCommand(requestBody)
             val newCar = carsService.createCar(command)
-            newCar.onSuccess { call.respond(HttpStatusCode.Created, it) }
+            newCar.onSuccess {
+                val responseBody = carResponseAssembler.carToResponse(it)
+                call.respond(HttpStatusCode.Created, responseBody)
+            }
         }
 
         put("/cars/{id}") {
@@ -50,8 +62,10 @@ fun Application.configureRouting() {
                     val requestBody = call.receive<UpdateCarRequest>()
                     val command = updateCarsAssembler.requestToCommand(id, requestBody)
                     val updatedCar = carsService.updateCar(command)
-                    updatedCar.onSuccess { call.respond(HttpStatusCode.OK, it) }
-
+                    updatedCar.onSuccess {
+                        val responseBody = carResponseAssembler.carToResponse(it)
+                        call.respond(HttpStatusCode.OK, responseBody)
+                    }
                 }
                 .onFailure { call.respond(HttpStatusCode.NotFound) }
         }
