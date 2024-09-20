@@ -14,25 +14,25 @@ class CarsServiceTest {
 
     @Test
     fun `getCars should return cars`() {
-        val cars = setOf(Car(1, "Porsche", "Red"), Car(2, "Lamborghini", "Azure"))
-        val repository = mock<CarsRepository> { on { getCars() } doReturn cars }
+        val expectedCars = setOf(Car(1, "Porsche", "Red"), Car(2, "Lamborghini", "Azure"))
+        val repository = mock<CarsRepository> { on { getCars() } doReturn expectedCars }
         val service = CarsService(repository)
 
-        val result = service.getCars()
+        val actualCars = service.getCars()
 
-        assertThat(result).isEqualTo(cars)
+        assertThat(actualCars).isEqualTo(expectedCars)
     }
 
     @Test
     fun `getCar should return a car`() {
         val id = 1
-        val car = Car(id, "Porsche", "Orange")
-        val repository = mock<CarsRepository> { on { getCar(id) } doReturn Result.success(car) }
+        val expectedCar = Car(id, "Porsche", "Orange")
+        val repository = mock<CarsRepository> { on { getCar(id) } doReturn Result.success(expectedCar) }
         val service = CarsService(repository)
 
         val result = service.getCar(1)
 
-        assertThat(result.getOrThrow()).isEqualTo(car)
+        assertThat(result.getOrThrow()).isEqualTo(expectedCar)
     }
 
     @Test
@@ -72,15 +72,15 @@ class CarsServiceTest {
     fun `createCar should create a new car`() {
         val make = "Kia"
         val colour = "Indigo"
-        val car = Car(7, make, colour)
+        val expectedCar = Car(7, make, colour)
         val command = CreateCarCommand(make, colour)
-        val repository = mock<CarsRepository> { on { createCar(command) } doReturn Result.success(car) }
+        val repository = mock<CarsRepository> { on { createCar(command) } doReturn Result.success(expectedCar) }
         val service = CarsService(repository)
 
         val result = service.createCar(command)
 
         assertThat(result.isSuccess).isTrue()
-        assertThat(result.getOrThrow()).isEqualTo(car)
+        assertThat(result.getOrThrow()).isEqualTo(expectedCar)
     }
 
     @Test
@@ -89,14 +89,14 @@ class CarsServiceTest {
         val make = "Rolls Royce"
         val colour = "Violet"
         val command = UpdateCarCommand(id, make, colour)
-        val car = Car(id, make, colour)
-        val repository = mock<CarsRepository> { on { updateCar(command) } doReturn Result.success(car) }
+        val expectedCar = Car(id, make, colour)
+        val repository = mock<CarsRepository> { on { updateCar(command) } doReturn Result.success(expectedCar) }
         val service = CarsService(repository)
 
         val result = service.updateCar(command)
 
         assertThat(result.isSuccess).isTrue()
-        assertThat(result.getOrThrow()).isEqualTo(car)
+        assertThat(result.getOrThrow()).isEqualTo(expectedCar)
     }
 
     @Test
