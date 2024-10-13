@@ -1,9 +1,11 @@
 package org.alterbit.repositories
 
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
 import org.alterbit.dto.CreateCarCommand
 import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.model.Car
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class CarsRepositoryTest {
@@ -14,7 +16,7 @@ class CarsRepositoryTest {
 
         val result = repository.getCars()
 
-        assertThat(result).containsExactly(
+        result shouldContainExactly listOf(
             Car(1, "Audi", "Red"),
             Car(2, "BMW", "Blue"),
             Car(3, "Lexus", "Pink"),
@@ -29,8 +31,8 @@ class CarsRepositoryTest {
 
         val result = repository.getCar(1)
 
-        assertThat(result.isSuccess).isTrue()
-        assertThat(result.getOrThrow()).isEqualTo(Car(1, "Audi", "Red"))
+        result.isSuccess shouldBe true
+        result.getOrThrow() shouldBe Car(1, "Audi", "Red")
     }
 
     @Test
@@ -39,7 +41,7 @@ class CarsRepositoryTest {
 
         val result = repository.getCar(99)
 
-        assertThat(result.isFailure).isTrue()
+        result.isFailure shouldBe true
     }
 
     @Test
@@ -48,8 +50,8 @@ class CarsRepositoryTest {
 
         val result = repository.deleteCar(2)
 
-        assertThat(result.isSuccess).isTrue()
-        assertThat(result.getOrThrow()).isTrue()
+        result.isSuccess shouldBe true
+        result.getOrThrow() shouldBe true
     }
 
     @Test
@@ -58,7 +60,7 @@ class CarsRepositoryTest {
 
         val result = repository.getCar(99)
 
-        assertThat(result.isFailure).isTrue()
+        result.isFailure shouldBe true
     }
 
     @Test
@@ -69,9 +71,9 @@ class CarsRepositoryTest {
         val result = repository.createCar(command)
 
         val expectedCar = Car(6, "Kia", "Yellow")
-        assertThat(result.isSuccess).isTrue()
-        assertThat(result.getOrThrow()).isEqualTo(expectedCar)
-        assertThat(repository.getCars()).contains(expectedCar)
+        result.isSuccess shouldBe true
+        result.getOrThrow() shouldBe expectedCar
+        repository.getCars() shouldContain expectedCar
     }
 
     @Test
@@ -82,9 +84,9 @@ class CarsRepositoryTest {
         val result = repository.updateCar(command)
 
         val expectedCar = Car(3, "Alfa Romeo", "Amber")
-        assertThat(result.isSuccess).isTrue()
-        assertThat(result.getOrThrow()).isEqualTo(expectedCar)
-        assertThat(repository.getCars()).contains(expectedCar)
+        result.isSuccess shouldBe true
+        result.getOrThrow() shouldBe expectedCar
+        repository.getCars() shouldContain expectedCar
     }
 
     @Test
@@ -95,9 +97,9 @@ class CarsRepositoryTest {
         val result = repository.updateCar(command)
 
         val expectedCar = Car(4, "Cupra", "Brown")
-        assertThat(result.isSuccess).isTrue()
-        assertThat(result.getOrThrow()).isEqualTo(expectedCar)
-        assertThat(repository.getCars()).contains(expectedCar)
+        result.isSuccess shouldBe true
+        result.getOrThrow() shouldBe expectedCar
+        repository.getCars() shouldContain expectedCar
     }
 
     @Test
@@ -108,9 +110,9 @@ class CarsRepositoryTest {
         val result = repository.updateCar(command)
 
         val expectedCar = Car(5, "Ford", "White")
-        assertThat(result.isSuccess).isTrue()
-        assertThat(result.getOrThrow()).isEqualTo(expectedCar)
-        assertThat(repository.getCars()).contains(expectedCar)
+        result.isSuccess shouldBe true
+        result.getOrThrow() shouldBe expectedCar
+        repository.getCars() shouldContain expectedCar
     }
 
     @Test
@@ -120,6 +122,6 @@ class CarsRepositoryTest {
 
         val result = repository.updateCar(command)
 
-        assertThat(result.isFailure).isTrue()
+        result.isFailure shouldBe true
     }
 }

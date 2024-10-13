@@ -1,8 +1,8 @@
 package org.alterbit.assembler
 
+import io.kotest.matchers.shouldBe
 import org.alterbit.dto.CreateCarCommand
 import org.alterbit.rest.CreateCarRequest
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class CreateCarAssemblerTest {
@@ -15,6 +15,6 @@ class CreateCarAssemblerTest {
 
         val command = assembler.requestToCommand(request)
 
-        assertThat(command).isEqualTo(CreateCarCommand("make", "colour"))
+        command shouldBe CreateCarCommand("make", "colour")
     }
 }

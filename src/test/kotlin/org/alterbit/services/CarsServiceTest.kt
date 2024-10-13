@@ -1,5 +1,6 @@
 package org.alterbit.services
 
+import io.kotest.matchers.shouldBe
 import io.ktor.server.plugins.*
 import io.mockk.every
 import io.mockk.mockk
@@ -7,7 +8,6 @@ import org.alterbit.dto.CreateCarCommand
 import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.model.Car
 import org.alterbit.repositories.CarsRepository
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class CarsServiceTest {
@@ -23,7 +23,7 @@ class CarsServiceTest {
 
         val actualCars = service.getCars()
 
-        assertThat(actualCars).isEqualTo(expectedCars)
+        actualCars shouldBe expectedCars
     }
 
     @Test
@@ -34,7 +34,7 @@ class CarsServiceTest {
 
         val result = service.getCar(1)
 
-        assertThat(result.getOrThrow()).isEqualTo(expectedCar)
+        result.getOrThrow() shouldBe expectedCar
     }
 
     @Test
@@ -44,7 +44,7 @@ class CarsServiceTest {
 
         val result = service.getCar(99)
 
-        assertThat(result.isFailure).isTrue()
+        result.isFailure shouldBe true
     }
 
     @Test
@@ -54,7 +54,7 @@ class CarsServiceTest {
 
         val result = service.deleteCar(id)
 
-        assertThat(result.getOrThrow()).isTrue()
+        result.getOrThrow() shouldBe true
     }
 
     @Test
@@ -64,7 +64,7 @@ class CarsServiceTest {
 
         val result = service.deleteCar(id)
 
-        assertThat(result.getOrThrow()).isFalse()
+        result.getOrThrow() shouldBe false
     }
 
     @Test
@@ -77,8 +77,8 @@ class CarsServiceTest {
 
         val result = service.createCar(command)
 
-        assertThat(result.isSuccess).isTrue()
-        assertThat(result.getOrThrow()).isEqualTo(expectedCar)
+        result.isSuccess shouldBe true
+        result.getOrThrow() shouldBe expectedCar
     }
 
     @Test
@@ -92,8 +92,8 @@ class CarsServiceTest {
 
         val result = service.updateCar(command)
 
-        assertThat(result.isSuccess).isTrue()
-        assertThat(result.getOrThrow()).isEqualTo(expectedCar)
+        result.isSuccess shouldBe true
+        result.getOrThrow() shouldBe expectedCar
     }
 
     @Test
@@ -106,6 +106,6 @@ class CarsServiceTest {
 
         val result = service.updateCar(command)
 
-        assertThat(result.isFailure).isTrue()
+        result.isFailure shouldBe true
     }
 }

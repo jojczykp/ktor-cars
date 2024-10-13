@@ -1,8 +1,8 @@
 package org.alterbit.assembler
 
+import io.kotest.matchers.shouldBe
 import org.alterbit.model.Car
 import org.alterbit.rest.CarResponse
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class CarResponseAssemblerTest {
@@ -15,6 +15,6 @@ class CarResponseAssemblerTest {
 
         val response = assembler.carToResponse(car)
 
-        assertThat(response).isEqualTo(CarResponse(5, "make", "colour"))
+        response shouldBe CarResponse(5, "make", "colour")
     }
 }

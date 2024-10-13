@@ -1,8 +1,8 @@
 package org.alterbit.assembler
 
+import io.kotest.matchers.shouldBe
 import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.rest.UpdateCarRequest
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class UpdateCarAssemblerTest {
@@ -16,7 +16,7 @@ class UpdateCarAssemblerTest {
 
         val command = assembler.requestToCommand(id, request)
 
-        assertThat(command).isEqualTo(UpdateCarCommand(id, "make", "colour"))
+        command shouldBe UpdateCarCommand(id, "make", "colour")
     }
 
     @Test
@@ -26,7 +26,7 @@ class UpdateCarAssemblerTest {
 
         val command = assembler.requestToCommand(id, request)
 
-        assertThat(command).isEqualTo(UpdateCarCommand(id))
+        command shouldBe UpdateCarCommand(id)
     }
 
     @Test
@@ -36,7 +36,7 @@ class UpdateCarAssemblerTest {
 
         val command = assembler.requestToCommand(id, request)
 
-        assertThat(command).isEqualTo(UpdateCarCommand(id = id, make = "make"))
+        command shouldBe UpdateCarCommand(id = id, make = "make")
     }
 
     @Test
@@ -46,6 +46,6 @@ class UpdateCarAssemblerTest {
 
         val command = assembler.requestToCommand(id, request)
 
-        assertThat(command).isEqualTo(UpdateCarCommand(id = id, colour = "Pink"))
+        command shouldBe UpdateCarCommand(id = id, colour = "Pink")
     }
 }

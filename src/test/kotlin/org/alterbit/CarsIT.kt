@@ -1,5 +1,6 @@
 package org.alterbit
 
+import io.kotest.matchers.shouldBe
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -8,7 +9,6 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
 import org.alterbit.rest.CarResponse
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -20,42 +20,42 @@ class CarsIT {
         @Test
         fun `GET cars should return all cars`() = testApplication {
             client.get("/cars").apply {
-                assertThat(status).isEqualTo(HttpStatusCode.OK)
-                assertThat(headers["Content-Length"]).isEqualTo("200")
-                assertThat(headers["Content-Type"]).isEqualTo("application/json; charset=UTF-8")
-                assertThat(headers.names().size).isEqualTo(2)
-                assertThat(bodyAsText()).isEqualTo("""[{"id":1,"make":"Audi","colour":"Red"},{"id":2,"make":"BMW","colour":"Blue"},{"id":3,"make":"Lexus","colour":"Pink"},{"id":4,"make":"Renault","colour":"Brown"},{"id":5,"make":"Ford","colour":"Green"}]""")
+                status shouldBe HttpStatusCode.OK
+                headers["Content-Length"] shouldBe "200"
+                headers["Content-Type"] shouldBe "application/json; charset=UTF-8"
+                headers.names().size shouldBe 2
+                bodyAsText() shouldBe """[{"id":1,"make":"Audi","colour":"Red"},{"id":2,"make":"BMW","colour":"Blue"},{"id":3,"make":"Lexus","colour":"Pink"},{"id":4,"make":"Renault","colour":"Brown"},{"id":5,"make":"Ford","colour":"Green"}]"""
             }
         }
 
         @Test
         fun `GET cars {id} should return a car`() = testApplication {
             client.get("/cars/1").apply {
-                assertThat(status).isEqualTo(HttpStatusCode.OK)
-                assertThat(headers["Content-Length"]).isEqualTo("37")
-                assertThat(headers["Content-Type"]).isEqualTo("application/json; charset=UTF-8")
-                assertThat(headers.names().size).isEqualTo(2)
-                assertThat(bodyAsText()).isEqualTo("""{"id":1,"make":"Audi","colour":"Red"}""")
+                status shouldBe HttpStatusCode.OK
+                headers["Content-Length"] shouldBe "37"
+                headers["Content-Type"] shouldBe "application/json; charset=UTF-8"
+                headers.names().size shouldBe 2
+                bodyAsText() shouldBe """{"id":1,"make":"Audi","colour":"Red"}"""
             }
         }
 
         @Test
         fun `GET cars {id} should return 404 if car does not exist`() = testApplication {
             client.get("/cars/99").apply {
-                assertThat(status).isEqualTo(HttpStatusCode.NotFound)
-                assertThat(headers["Content-Length"]).isEqualTo("0")
-                assertThat(headers.names().size).isEqualTo(1)
-                assertThat(bodyAsText()).isEmpty()
+                status shouldBe HttpStatusCode.NotFound
+                headers["Content-Length"] shouldBe "0"
+                headers.names().size shouldBe 1
+                bodyAsText() shouldBe ""
             }
         }
 
         @Test
         fun `GET cars {id} should return 404 if incorrect id format specified`() = testApplication {
             client.get("/cars/invalid-id-format").apply {
-                assertThat(status).isEqualTo(HttpStatusCode.NotFound)
-                assertThat(headers["Content-Length"]).isEqualTo("0")
-                assertThat(headers.names().size).isEqualTo(1)
-                assertThat(bodyAsText()).isEmpty()
+                status shouldBe HttpStatusCode.NotFound
+                headers["Content-Length"] shouldBe "0"
+                headers.names().size shouldBe 1
+                bodyAsText() shouldBe ""
             }
         }
     }
@@ -66,31 +66,31 @@ class CarsIT {
         @Test
         fun `DELETE cars {id} should delete a car`() = testApplication {
             client.delete("/cars/2").apply {
-                assertThat(status).isEqualTo(HttpStatusCode.NoContent)
-                assertThat(headers["Content-Length"]).isEqualTo("0")
-                assertThat(headers.names().size).isEqualTo(1)
-                assertThat(bodyAsText()).isEmpty()
-                assertThat(client.get("/cars/2").status).isEqualTo(HttpStatusCode.NotFound)
+                status shouldBe HttpStatusCode.NoContent
+                headers["Content-Length"] shouldBe "0"
+                headers.names().size shouldBe 1
+                bodyAsText() shouldBe ""
+                client.get("/cars/2").status shouldBe HttpStatusCode.NotFound
             }
         }
 
         @Test
         fun `DELETE cars {id} should return 404 if car does not exist`() = testApplication {
             client.delete("/cars/99").apply {
-                assertThat(status).isEqualTo(HttpStatusCode.NotFound)
-                assertThat(headers["Content-Length"]).isEqualTo("0")
-                assertThat(headers.names().size).isEqualTo(1)
-                assertThat(bodyAsText()).isEmpty()
+                status shouldBe HttpStatusCode.NotFound
+                headers["Content-Length"] shouldBe "0"
+                headers.names().size shouldBe 1
+                bodyAsText() shouldBe ""
             }
         }
 
         @Test
         fun `DELETE cars {id} should return 404 if incorrect id format specified`() = testApplication {
             client.delete("/cars/invalid-id-format").apply {
-                assertThat(status).isEqualTo(HttpStatusCode.NotFound)
-                assertThat(headers["Content-Length"]).isEqualTo("0")
-                assertThat(headers.names().size).isEqualTo(1)
-                assertThat(bodyAsText()).isEmpty()
+                status shouldBe HttpStatusCode.NotFound
+                headers["Content-Length"] shouldBe "0"
+                headers.names().size shouldBe 1
+                bodyAsText() shouldBe ""
             }
         }
     }
@@ -104,12 +104,12 @@ class CarsIT {
                 contentType(ContentType.Application.Json)
                 setBody("""{"make":"Dacia","colour":"Red"}""")
             }.apply {
-                assertThat(status).isEqualTo(HttpStatusCode.Created)
-                assertThat(headers["Content-Length"]).isEqualTo("38")
-                assertThat(headers["Content-Type"]).isEqualTo("application/json; charset=UTF-8")
-                assertThat(headers.names().size).isEqualTo(2)
-                assertThat(bodyAsText()).isEqualTo("""{"id":6,"make":"Dacia","colour":"Red"}""")
-                assertThat(client.get("/cars/6").bodyAsText()).isEqualTo("""{"id":6,"make":"Dacia","colour":"Red"}""")
+                status shouldBe HttpStatusCode.Created
+                headers["Content-Length"] shouldBe "38"
+                headers["Content-Type"] shouldBe "application/json; charset=UTF-8"
+                headers.names().size shouldBe 2
+                bodyAsText() shouldBe """{"id":6,"make":"Dacia","colour":"Red"}"""
+                client.get("/cars/6").bodyAsText() shouldBe """{"id":6,"make":"Dacia","colour":"Red"}"""
             }
         }
 
@@ -119,10 +119,10 @@ class CarsIT {
                 contentType(ContentType.Application.Json)
                 setBody("""{"no-make":"Something"}""")
             }.apply {
-                assertThat(status).isEqualTo(HttpStatusCode.BadRequest)
-                assertThat(headers["Content-Length"]).isEqualTo("0")
-                assertThat(headers.names().size).isEqualTo(1)
-                assertThat(bodyAsText()).isEmpty()
+                status shouldBe HttpStatusCode.BadRequest
+                headers["Content-Length"] shouldBe "0"
+                headers.names().size shouldBe 1
+                bodyAsText() shouldBe ""
             }
         }
 
@@ -132,10 +132,10 @@ class CarsIT {
                 contentType(ContentType.Application.Json)
                 setBody("no json")
             }.apply {
-                assertThat(status).isEqualTo(HttpStatusCode.BadRequest)
-                assertThat(headers["Content-Length"]).isEqualTo("0")
-                assertThat(headers.names().size).isEqualTo(1)
-                assertThat(bodyAsText()).isEmpty()
+                status shouldBe HttpStatusCode.BadRequest
+                headers["Content-Length"] shouldBe "0"
+                headers.names().size shouldBe 1
+                bodyAsText() shouldBe ""
             }
         }
 
@@ -144,10 +144,10 @@ class CarsIT {
             client.post("/cars") {
                 setBody("""{"make":"Tesla"}""")
             }.apply {
-                assertThat(status).isEqualTo(HttpStatusCode.UnsupportedMediaType)
-                assertThat(headers["Content-Length"]).isEqualTo("0")
-                assertThat(headers.names().size).isEqualTo(1)
-                assertThat(bodyAsText()).isEmpty()
+                status shouldBe HttpStatusCode.UnsupportedMediaType
+                headers["Content-Length"] shouldBe "0"
+                headers.names().size shouldBe 1
+                bodyAsText() shouldBe ""
             }
         }
     }
@@ -168,13 +168,12 @@ class CarsIT {
                 setBody("""{"make":"Hyundai","colour":"Blue"}""")
             }
 
-            assertThat(response.status).isEqualTo(HttpStatusCode.OK)
-            assertThat(response.headers["Content-Length"]).isEqualTo("41")
-            assertThat(response.headers["Content-Type"]).isEqualTo("application/json; charset=UTF-8")
-            assertThat(response.headers.names().size).isEqualTo(2)
-            assertThat(response.bodyAsText()).isEqualTo("""{"id":${id},"make":"Hyundai","colour":"Blue"}""")
-            assertThat(client.get("/cars/${id}").bodyAsText())
-                .isEqualTo("""{"id":${id},"make":"Hyundai","colour":"Blue"}""")
+            response.status shouldBe HttpStatusCode.OK
+            response.headers["Content-Length"] shouldBe "41"
+            response.headers["Content-Type"] shouldBe "application/json; charset=UTF-8"
+            response.headers.names().size shouldBe 2
+            response.bodyAsText() shouldBe """{"id":${id},"make":"Hyundai","colour":"Blue"}"""
+            client.get("/cars/${id}").bodyAsText() shouldBe """{"id":${id},"make":"Hyundai","colour":"Blue"}"""
 
         }
 
@@ -184,20 +183,20 @@ class CarsIT {
                 contentType(ContentType.Application.Json)
                 setBody("""{"make":"Opel"}""")
             }.apply {
-                assertThat(status).isEqualTo(HttpStatusCode.NotFound)
-                assertThat(headers["Content-Length"]).isEqualTo("0")
-                assertThat(headers.names().size).isEqualTo(1)
-                assertThat(bodyAsText()).isEmpty()
+                status shouldBe HttpStatusCode.NotFound
+                headers["Content-Length"] shouldBe "0"
+                headers.names().size shouldBe 1
+                bodyAsText() shouldBe ""
             }
         }
 
         @Test
         fun `PUT cars {id} should return 404 if incorrect id format specified`() = testApplication {
             client.put("/cars/invalid-id-format").apply {
-                assertThat(status).isEqualTo(HttpStatusCode.NotFound)
-                assertThat(headers["Content-Length"]).isEqualTo("0")
-                assertThat(headers.names().size).isEqualTo(1)
-                assertThat(bodyAsText()).isEmpty()
+                status shouldBe HttpStatusCode.NotFound
+                headers["Content-Length"] shouldBe "0"
+                headers.names().size shouldBe 1
+                bodyAsText() shouldBe ""
             }
         }
 
@@ -207,10 +206,10 @@ class CarsIT {
                 contentType(ContentType.Application.Json)
                 setBody("""{"no-make":"Something"}""")
             }.apply {
-                assertThat(status).isEqualTo(HttpStatusCode.BadRequest)
-                assertThat(headers["Content-Length"]).isEqualTo("0")
-                assertThat(headers.names().size).isEqualTo(1)
-                assertThat(bodyAsText()).isEmpty()
+                status shouldBe HttpStatusCode.BadRequest
+                headers["Content-Length"] shouldBe "0"
+                headers.names().size shouldBe 1
+                bodyAsText() shouldBe ""
             }
         }
 
@@ -220,10 +219,10 @@ class CarsIT {
                 contentType(ContentType.Application.Json)
                 setBody("no json")
             }.apply {
-                assertThat(status).isEqualTo(HttpStatusCode.BadRequest)
-                assertThat(headers["Content-Length"]).isEqualTo("0")
-                assertThat(headers.names().size).isEqualTo(1)
-                assertThat(bodyAsText()).isEmpty()
+                status shouldBe HttpStatusCode.BadRequest
+                headers["Content-Length"] shouldBe "0"
+                headers.names().size shouldBe 1
+                bodyAsText() shouldBe ""
             }
         }
 
@@ -232,10 +231,10 @@ class CarsIT {
             client.put("/cars/50") {
                 setBody("""{"make":"Peugeot"}""")
             }.apply {
-                assertThat(status).isEqualTo(HttpStatusCode.UnsupportedMediaType)
-                assertThat(headers["Content-Length"]).isEqualTo("0")
-                assertThat(headers.names().size).isEqualTo(1)
-                assertThat(bodyAsText()).isEmpty()
+                status shouldBe HttpStatusCode.UnsupportedMediaType
+                headers["Content-Length"] shouldBe "0"
+                headers.names().size shouldBe 1
+                bodyAsText() shouldBe ""
             }
         }
     }

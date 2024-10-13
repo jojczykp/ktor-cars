@@ -3,7 +3,7 @@ val kodein_version: String by project
 val logback_version: String by project
 val jupiter_version: String by project
 val mockk_version: String by project
-val assertj_version: String by project
+val kotest_version: String by project
 
 plugins {
     kotlin("jvm") version "2.0.20"
@@ -51,7 +51,7 @@ dependencies {
     testImplementation("io.ktor:ktor-client-content-negotiation-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("io.mockk:mockk-jvm:${mockk_version}")
-    testImplementation("org.assertj:assertj-core:$assertj_version")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:$kotest_version")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiter_version")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiter_version")
 }
