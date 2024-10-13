@@ -1,5 +1,5 @@
 val kotlin_version: String by project
-val koin_version: String by project
+val kodein_version: String by project
 val logback_version: String by project
 val jupiter_version: String by project
 val mockito_version: String by project
@@ -35,9 +35,9 @@ dependencies {
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("io.ktor:ktor-server-config-yaml")
 
-    // Koin for Dependency Injection
-    implementation("io.insert-koin:koin-ktor:$koin_version")
-    implementation("io.insert-koin:koin-core:$koin_version")
+    // Dependency Injection
+    implementation("org.kodein.di:kodein-di-jvm:$kodein_version")
+    implementation("org.kodein.di:kodein-di-framework-ktor-server-jvm:$kodein_version")
 
     // Logback Logging
     implementation("ch.qos.logback:logback-classic:$logback_version")

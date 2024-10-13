@@ -11,15 +11,17 @@ import org.alterbit.assembler.UpdateCarAssembler
 import org.alterbit.rest.CreateCarRequest
 import org.alterbit.rest.UpdateCarRequest
 import org.alterbit.services.CarsService
-import org.koin.ktor.ext.inject
+import org.kodein.di.instance
+import org.kodein.di.ktor.closestDI
 
 fun Application.configureRouting() {
-    routing {
-        val carsService: CarsService by inject()
 
-        val createCarsAssembler: CreateCarAssembler by inject()
-        val updateCarsAssembler: UpdateCarAssembler by inject()
-        val carResponseAssembler: CarResponseAssembler by inject()
+    routing {
+        val carsService: CarsService by closestDI().instance()
+
+        val createCarsAssembler: CreateCarAssembler by closestDI().instance()
+        val updateCarsAssembler: UpdateCarAssembler by closestDI().instance()
+        val carResponseAssembler: CarResponseAssembler by closestDI().instance()
 
         get("/cars") {
             val responseBody = carsService.getCars()
