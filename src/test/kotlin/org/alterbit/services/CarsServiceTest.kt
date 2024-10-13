@@ -1,22 +1,25 @@
 package org.alterbit.services
 
 import io.ktor.server.plugins.*
+import io.mockk.every
+import io.mockk.mockk
 import org.alterbit.dto.CreateCarCommand
 import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.model.Car
 import org.alterbit.repositories.CarsRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
 
 class CarsServiceTest {
+
+    private val repository = mockk<CarsRepository>()
+
+    private val service = CarsService(repository)
 
     @Test
     fun `getCars should return cars`() {
         val expectedCars = setOf(Car(1, "Porsche", "Red"), Car(2, "Lamborghini", "Azure"))
-        val repository = mock<CarsRepository> { on { getCars() } doReturn expectedCars }
-        val service = CarsService(repository)
+        every { repository.getCars() } returns expectedCars
 
         val actualCars = service.getCars()
 
@@ -27,8 +30,7 @@ class CarsServiceTest {
     fun `getCar should return a car`() {
         val id = 1
         val expectedCar = Car(id, "Porsche", "Orange")
-        val repository = mock<CarsRepository> { on { getCar(id) } doReturn Result.success(expectedCar) }
-        val service = CarsService(repository)
+        every { repository.getCar(id) } returns Result.success(expectedCar)
 
         val result = service.getCar(1)
 
@@ -38,8 +40,7 @@ class CarsServiceTest {
     @Test
     fun `getCar should return car not found`() {
         val id = 99
-        val repository = mock<CarsRepository> { on { getCar(id) } doReturn Result.failure(NotFoundException()) }
-        val service = CarsService(repository)
+        every { repository.getCar(id) } returns Result.failure(NotFoundException())
 
         val result = service.getCar(99)
 
@@ -49,8 +50,7 @@ class CarsServiceTest {
     @Test
     fun `deleteCar should delete a car`() {
         val id = 2
-        val repository = mock<CarsRepository> { on { deleteCar(id) } doReturn Result.success(true) }
-        val service = CarsService(repository)
+        every { repository.deleteCar(id) } returns Result.success(true)
 
         val result = service.deleteCar(id)
 
@@ -60,8 +60,7 @@ class CarsServiceTest {
     @Test
     fun `deleteCar should return car not found`() {
         val id = 99
-        val repository = mock<CarsRepository> { on { deleteCar(id) } doReturn Result.success(false) }
-        val service = CarsService(repository)
+        every { repository.deleteCar(id) } returns Result.success(false)
 
         val result = service.deleteCar(id)
 
@@ -74,8 +73,7 @@ class CarsServiceTest {
         val colour = "Indigo"
         val expectedCar = Car(7, make, colour)
         val command = CreateCarCommand(make, colour)
-        val repository = mock<CarsRepository> { on { createCar(command) } doReturn Result.success(expectedCar) }
-        val service = CarsService(repository)
+        every { repository.createCar(command) } returns Result.success(expectedCar)
 
         val result = service.createCar(command)
 
@@ -90,8 +88,7 @@ class CarsServiceTest {
         val colour = "Violet"
         val command = UpdateCarCommand(id, make, colour)
         val expectedCar = Car(id, make, colour)
-        val repository = mock<CarsRepository> { on { updateCar(command) } doReturn Result.success(expectedCar) }
-        val service = CarsService(repository)
+        every { repository.updateCar(command) } returns Result.success(expectedCar)
 
         val result = service.updateCar(command)
 
@@ -105,8 +102,7 @@ class CarsServiceTest {
         val make = "Cadillac"
         val colour = "Grey"
         val command = UpdateCarCommand(id, make, colour)
-        val repository = mock<CarsRepository> { on { updateCar(command) } doReturn Result.failure(NotFoundException()) }
-        val service = CarsService(repository)
+        every { repository.updateCar(command) } returns Result.failure(NotFoundException())
 
         val result = service.updateCar(command)
 
