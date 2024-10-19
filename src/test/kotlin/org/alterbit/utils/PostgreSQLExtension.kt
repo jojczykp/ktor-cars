@@ -9,11 +9,15 @@ import org.testcontainers.utility.MountableFile
 import java.sql.Connection
 import java.sql.DriverManager
 
-class PostgreSQLExtension(private val autoCommit: Boolean) : BeforeAllCallback, AfterAllCallback, AfterEachCallback {
+class PostgreSQLExtension : BeforeAllCallback, AfterAllCallback, AfterEachCallback {
 
     private lateinit var database: PostgreSQLContainer<*>
 
     lateinit var connection: Connection
+
+    lateinit var url: String
+    lateinit var user: String
+    lateinit var password: String
 
     override fun beforeAll(context: ExtensionContext?) {
         database = PostgreSQLContainer("postgres:16-alpine")
@@ -24,7 +28,11 @@ class PostgreSQLExtension(private val autoCommit: Boolean) : BeforeAllCallback, 
         database.start()
 
         connection = database.run { DriverManager.getConnection(jdbcUrl, username, password) }
-            .apply { autoCommit = this@PostgreSQLExtension.autoCommit }
+            .apply { autoCommit = false }
+
+        url = database.jdbcUrl
+        user = database.username
+        password = database.password
     }
 
     override fun afterAll(context: ExtensionContext?) {
@@ -33,8 +41,6 @@ class PostgreSQLExtension(private val autoCommit: Boolean) : BeforeAllCallback, 
     }
 
     override fun afterEach(context: ExtensionContext?) {
-        if (!autoCommit) {
-            connection.rollback()
-        }
+        connection.rollback()
     }
 }

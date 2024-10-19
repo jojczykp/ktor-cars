@@ -6,18 +6,11 @@ import io.kotest.matchers.shouldBe
 import org.alterbit.dto.CreateCarCommand
 import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.model.Car
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeAll
+import org.alterbit.utils.PostgreSQLExtension
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.utility.MountableFile
-import java.sql.Connection
-import java.sql.DriverManager
+import org.junit.jupiter.api.extension.RegisterExtension
 
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CarsRepositoryTest {
 
     private val id1 = "67dd309e-8e9f-417e-9b1e-873d523d9597"
@@ -25,35 +18,14 @@ class CarsRepositoryTest {
     private val id3 = "d6694921-543e-4ac3-aa3a-e7716cfbabda"
     private val id99 = "99999999-9999-9999-9999-999999999999"
 
-    private val database = PostgreSQLContainer("postgres:16-alpine")
-        .withCopyFileToContainer(
-            MountableFile.forClasspathResource("init.sql"),
-            "/docker-entrypoint-initdb.d/init.sql")
-
-    private lateinit var connection: Connection
-
-    private lateinit var repository: CarsRepository
-
-    @BeforeAll
-    fun setup() {
-        database.start()
-
-        connection = database.run { DriverManager.getConnection(jdbcUrl, username, password) }
-            .apply { autoCommit = false }
-
-        repository = database.run { CarsRepository(connection) }
+    companion object {
+        @RegisterExtension
+        private val database = PostgreSQLExtension()
     }
 
-    @AfterAll
-    fun teardown() {
-        connection.close()
-        database.stop()
-    }
+    private val connection = database.connection
 
-    @AfterEach
-    fun rollback() {
-        connection.rollback()
-    }
+    private val repository = CarsRepository(connection)
 
     @Test
     fun `getCars should return cars`() {
