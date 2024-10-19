@@ -46,9 +46,9 @@ class CarsRepositoryTest {
 
     @Test
     fun `getCar should return a car`() {
-        connection.createStatement().apply {
-            execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
-            execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+        connection.createStatement().use {
+            it.execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+            it.execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
         }
 
         val result = repository.getCar(id1)
@@ -67,9 +67,9 @@ class CarsRepositoryTest {
     @Test
     fun `deleteCar should delete a car`() {
         // Given
-        connection.createStatement().apply {
-            execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
-            execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+        connection.createStatement().use {
+            it.execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+            it.execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
         }
 
         // When
@@ -112,9 +112,9 @@ class CarsRepositoryTest {
     @Test
     fun `updateCar should update all car properties`() {
         val command = UpdateCarCommand(id2, "Alfa Romeo", "Amber")
-        connection.createStatement().apply {
-            execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
-            execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+        connection.createStatement().use {
+            it.execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+            it.execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
         }
 
         val result = repository.updateCar(command)
@@ -128,9 +128,9 @@ class CarsRepositoryTest {
     @Test
     fun `updateCar should update make`() {
         val command = UpdateCarCommand(id = id2, make = "Cupra")
-        connection.createStatement().apply {
-            execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
-            execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+        connection.createStatement().use {
+            it.execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+            it.execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
         }
 
         val result = repository.updateCar(command)
@@ -144,9 +144,9 @@ class CarsRepositoryTest {
     @Test
     fun `updateCar should update colour`() {
         val command = UpdateCarCommand(id = id2, colour = "White")
-        connection.createStatement().apply {
-            execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
-            execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+        connection.createStatement().use {
+            it.execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+            it.execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
         }
 
         val result = repository.updateCar(command)
