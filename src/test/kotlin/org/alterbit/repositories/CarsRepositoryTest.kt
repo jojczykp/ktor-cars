@@ -20,7 +20,7 @@ class CarsRepositoryTest {
 
     companion object {
         @RegisterExtension
-        private val database = PostgreSQLExtension()
+        private val database = PostgreSQLExtension(true)
     }
 
     private val connection = database.connection

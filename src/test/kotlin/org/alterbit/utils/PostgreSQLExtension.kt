@@ -9,7 +9,7 @@ import org.testcontainers.utility.MountableFile
 import java.sql.Connection
 import java.sql.DriverManager
 
-class PostgreSQLExtension : BeforeAllCallback, AfterAllCallback, AfterEachCallback {
+class PostgreSQLExtension(private val rollbackAfterEach: Boolean = false) : BeforeAllCallback, AfterAllCallback, AfterEachCallback {
 
     private lateinit var database: PostgreSQLContainer<*>
 
@@ -28,7 +28,7 @@ class PostgreSQLExtension : BeforeAllCallback, AfterAllCallback, AfterEachCallba
         database.start()
 
         connection = database.run { DriverManager.getConnection(jdbcUrl, username, password) }
-            .apply { autoCommit = false }
+            .apply { autoCommit = !rollbackAfterEach }
 
         url = database.jdbcUrl
         user = database.username
@@ -41,6 +41,8 @@ class PostgreSQLExtension : BeforeAllCallback, AfterAllCallback, AfterEachCallba
     }
 
     override fun afterEach(context: ExtensionContext?) {
-        connection.rollback()
+        if (rollbackAfterEach) {
+            connection.rollback()
+        }
     }
 }
