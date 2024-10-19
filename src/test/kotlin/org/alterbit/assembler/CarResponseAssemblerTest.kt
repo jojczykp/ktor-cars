@@ -11,10 +11,11 @@ class CarResponseAssemblerTest {
 
     @Test
     fun `should create response from car`() {
-        val car = Car(5, "make", "colour")
+        val id = "17369f5e-1669-43cf-802d-1d55aa570527"
+        val car = Car(id, "make", "colour")
 
         val response = assembler.carToResponse(car)
 
-        response shouldBe CarResponse(5, "make", "colour")
+        response shouldBe CarResponse(id, "make", "colour")
     }
 }

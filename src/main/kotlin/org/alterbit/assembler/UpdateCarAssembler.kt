@@ -5,6 +5,6 @@ import org.alterbit.rest.UpdateCarRequest
 
 class UpdateCarAssembler {
 
-    fun requestToCommand(id: Int, requestBody: UpdateCarRequest): UpdateCarCommand =
+    fun requestToCommand(id: String, requestBody: UpdateCarRequest): UpdateCarCommand =
         UpdateCarCommand(id, requestBody.make, requestBody.colour)
 }

@@ -9,9 +9,9 @@ class CarsService(private val carsRepository: CarsRepository) {
 
     fun getCars(): Set<Car> = carsRepository.getCars()
 
-    fun getCar(id: Int): Result<Car> = carsRepository.getCar(id)
+    fun getCar(id: String): Result<Car> = carsRepository.getCar(id)
 
-    fun deleteCar(id: Int): Result<Boolean> = carsRepository.deleteCar(id)
+    fun deleteCar(id: String): Result<Boolean> = carsRepository.deleteCar(id)
 
     fun createCar(command: CreateCarCommand): Result<Car> = carsRepository.createCar(command)
 

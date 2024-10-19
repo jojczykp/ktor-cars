@@ -30,7 +30,7 @@ fun Application.configureRouting() {
         }
 
         get("/cars/{id}") {
-            runCatching { carsService.getCar(call.parameters["id"]!!.toInt()) }
+            runCatching { carsService.getCar(call.parameters["id"]!!.toString()) }
                 .onSuccess {
                     val car = it.getOrThrow()
                     val responseBody = carResponseAssembler.carToResponse(car)
@@ -40,7 +40,7 @@ fun Application.configureRouting() {
         }
 
         delete("/cars/{id}") {
-            runCatching { carsService.deleteCar(call.parameters["id"]!!.toInt()) }
+            runCatching { carsService.deleteCar(call.parameters["id"]!!.toString()) }
                 .onSuccess {
                     val deleted = it.getOrThrow()
                     call.respond(if (deleted) HttpStatusCode.NoContent else HttpStatusCode.NotFound)
@@ -59,7 +59,7 @@ fun Application.configureRouting() {
         }
 
         put("/cars/{id}") {
-            runCatching { call.parameters["id"]!!.toInt() }
+            runCatching { call.parameters["id"]!!.toString() }
                 .onSuccess { id ->
                     val requestBody = call.receive<UpdateCarRequest>()
                     val command = updateCarsAssembler.requestToCommand(id, requestBody)

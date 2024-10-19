@@ -4,49 +4,86 @@ import io.ktor.server.plugins.*
 import org.alterbit.dto.CreateCarCommand
 import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.model.Car
+import java.sql.Connection
+import java.sql.ResultSet
+import java.util.*
 
-class CarsRepository {
+class CarsRepository(private val connection: Connection) {
 
-    private val cars = listOf(
-        Car(1, "Audi", "Red"),
-        Car(2, "BMW", "Blue"),
-        Car(3, "Lexus", "Pink"),
-        Car(4, "Renault", "Brown"),
-        Car(5, "Ford", "Green")
-    ).associateBy { it.id }.toMutableMap()
+    fun getCars(): Set<Car> = connection
+        .createStatement()
+        .executeQuery("SELECT id, make, colour FROM cars")
+        .asSequence()
+        .map { it.toCar() }
+        .toSet()
 
-    fun getCars(): Set<Car> = cars.values.toSet()
-
-    fun getCar(id: Int): Result<Car> =
-        cars[id]
-            .let {
-                if (it == null) Result.failure(NotFoundException("Car $id not found"))
-                else Result.success(it)
+    fun getCar(id: String): Result<Car> = connection
+        .createStatement()
+        .executeQuery("SELECT id, make, colour FROM cars WHERE id = '$id'")
+        .let { rs ->
+            if (rs.next()) {
+                Result.success(rs.toCar())
+            } else {
+                Result.failure(NotFoundException("Car $id not found"))
             }
+        }
 
-    fun createCar(command: CreateCarCommand): Result<Car> =
-        cars.keys
-            .maxOrNull()
-            .let { lastId -> (lastId ?: 0) + 1 }
-            .let { newId -> Car(newId, command.make, command.colour) }
-            .let { newCar -> cars[newCar.id] = newCar; newCar }
-            .let { newCar -> Result.success(newCar) }
+    fun createCar(command: CreateCarCommand): Result<Car> {
+        val id = UUID.randomUUID().toString()
 
-    fun deleteCar(id: Int): Result<Boolean> =
-        cars.remove(id)
-            .let { Result.success(it != null) }
+        connection
+            .createStatement()
+            .executeUpdate("INSERT INTO cars (id, make, colour) VALUES ('$id', '${command.make}', '${command.colour}')")
 
-    fun updateCar(command: UpdateCarCommand): Result<Car> =
-        cars[command.id]
-            .let { originalCar ->
-                if (originalCar == null) Result.failure(NotFoundException("Car ${command.id} not found"))
-                else {
-                    val updatedCar = originalCar.copy(
-                        make = command.make ?: originalCar.make,
-                        colour = command.colour ?: originalCar.colour
-                    )
-                    cars[updatedCar.id] = updatedCar
-                    Result.success(updatedCar)
-                }
+        return getCar(id)
+    }
+
+    fun deleteCar(id: String): Result<Boolean> = connection
+        .createStatement()
+        .executeUpdate("DELETE FROM cars WHERE id = '$id'")
+        .let {
+            if (it > 0) {
+                Result.success(true)
+            } else {
+                Result.failure(NotFoundException("Car $id not found"))
             }
+        }
+
+    fun updateCar(command: UpdateCarCommand): Result<Car> {
+        val updates = command.updates();
+
+        if (updates.isNotBlank()) {
+            connection
+                .createStatement()
+                .executeUpdate("UPDATE cars SET $updates WHERE id = '${command.id}'")
+        }
+
+        return getCar(command.id)
+    }
+
+    private fun UpdateCarCommand.updates(): String {
+        val result = mutableListOf<String>()
+
+        if (make != null) {
+            result.add("make = '$make'")
+        }
+
+        if (colour != null) {
+            result.add("colour = '$colour'")
+        }
+
+        return result.joinToString()
+    }
+
+    private fun ResultSet.asSequence(): Sequence<ResultSet> = sequence {
+        while (this@asSequence.next()) {
+            yield(this@asSequence)
+        }
+    }
+
+    private fun ResultSet.toCar() = Car(
+        getString("id"),
+        getString("make"),
+        getString("colour")
+    )
 }

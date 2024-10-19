@@ -1,124 +1,193 @@
 package org.alterbit.repositories
 
 import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import org.alterbit.dto.CreateCarCommand
 import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.model.Car
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.utility.MountableFile
+import java.sql.Connection
+import java.sql.DriverManager
 
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CarsRepositoryTest {
+
+    private val id1 = "67dd309e-8e9f-417e-9b1e-873d523d9597"
+    private val id2 = "7dd22399-9334-416e-99c8-954a5537566e"
+    private val id3 = "d6694921-543e-4ac3-aa3a-e7716cfbabda"
+    private val id99 = "99999999-9999-9999-9999-999999999999"
+
+    private val database = PostgreSQLContainer("postgres:16-alpine")
+        .withCopyFileToContainer(
+            MountableFile.forClasspathResource("init.sql"),
+            "/docker-entrypoint-initdb.d/init.sql")
+
+    private lateinit var connection: Connection
+
+    private lateinit var repository: CarsRepository
+
+    @BeforeAll
+    fun setup() {
+        database.start()
+
+        connection = database.run { DriverManager.getConnection(jdbcUrl, username, password) }
+            .apply { autoCommit = false }
+
+        repository = database.run { CarsRepository(connection) }
+    }
+
+    @AfterAll
+    fun teardown() {
+        connection.close()
+        database.stop()
+    }
+
+    @AfterEach
+    fun rollback() {
+        connection.rollback()
+    }
 
     @Test
     fun `getCars should return cars`() {
-        val repository = CarsRepository()
+        connection.createStatement().use {
+            it.execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+            it.execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+            it.execute("INSERT INTO cars (id, make, colour) VALUES ('$id3', 'Lexus', 'Pink')")
+        }
 
         val result = repository.getCars()
 
-        result shouldContainExactly listOf(
-            Car(1, "Audi", "Red"),
-            Car(2, "BMW", "Blue"),
-            Car(3, "Lexus", "Pink"),
-            Car(4, "Renault", "Brown"),
-            Car(5, "Ford", "Green")
+        result shouldContainExactlyInAnyOrder listOf(
+            Car(id1, "Audi", "Red"),
+            Car(id2, "BMW", "Blue"),
+            Car(id3, "Lexus", "Pink")
         )
     }
 
     @Test
     fun `getCar should return a car`() {
-        val repository = CarsRepository()
+        connection.createStatement().apply {
+            execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+            execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+        }
 
-        val result = repository.getCar(1)
+        val result = repository.getCar(id1)
 
         result.isSuccess shouldBe true
-        result.getOrThrow() shouldBe Car(1, "Audi", "Red")
+        result.getOrThrow() shouldBe Car(id1, "Audi", "Red")
     }
 
     @Test
     fun `getCar should return car not found`() {
-        val repository = CarsRepository()
-
-        val result = repository.getCar(99)
+        val result = repository.getCar(id99)
 
         result.isFailure shouldBe true
     }
 
     @Test
     fun `deleteCar should delete a car`() {
-        val repository = CarsRepository()
+        // Given
+        connection.createStatement().apply {
+            execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+            execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+        }
 
-        val result = repository.deleteCar(2)
+        // When
+        val result = repository.deleteCar(id2)
 
+        // Then
         result.isSuccess shouldBe true
         result.getOrThrow() shouldBe true
+
+        connection.createStatement().use {
+            val next = it.executeQuery("SELECT * from cars WHERE id = '$id2'").next()
+            next shouldBe false
+        }
     }
 
     @Test
     fun `deleteCar should return car not found`() {
-        val repository = CarsRepository()
-
-        val result = repository.getCar(99)
+        val result = repository.deleteCar(id99)
 
         result.isFailure shouldBe true
     }
 
     @Test
     fun `createCar should create a new car`() {
-        val repository = CarsRepository()
         val command = CreateCarCommand("Kia", "Yellow")
+        connection.createStatement().use {
+            it.execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+            it.execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+        }
 
         val result = repository.createCar(command)
 
-        val expectedCar = Car(6, "Kia", "Yellow")
         result.isSuccess shouldBe true
+        val createdCar = result.getOrThrow()
+        val expectedCar = Car(createdCar.id, "Kia", "Yellow")
         result.getOrThrow() shouldBe expectedCar
         repository.getCars() shouldContain expectedCar
     }
 
     @Test
     fun `updateCar should update all car properties`() {
-        val repository = CarsRepository()
-        val command = UpdateCarCommand(3, "Alfa Romeo", "Amber")
+        val command = UpdateCarCommand(id2, "Alfa Romeo", "Amber")
+        connection.createStatement().apply {
+            execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+            execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+        }
 
         val result = repository.updateCar(command)
 
-        val expectedCar = Car(3, "Alfa Romeo", "Amber")
         result.isSuccess shouldBe true
+        val expectedCar = Car(id2, "Alfa Romeo", "Amber")
         result.getOrThrow() shouldBe expectedCar
         repository.getCars() shouldContain expectedCar
     }
 
     @Test
     fun `updateCar should update make`() {
-        val repository = CarsRepository()
-        val command = UpdateCarCommand(id = 4, make = "Cupra")
+        val command = UpdateCarCommand(id = id2, make = "Cupra")
+        connection.createStatement().apply {
+            execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+            execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+        }
 
         val result = repository.updateCar(command)
 
-        val expectedCar = Car(4, "Cupra", "Brown")
         result.isSuccess shouldBe true
+        val expectedCar = Car(id2, "Cupra", "Blue")
         result.getOrThrow() shouldBe expectedCar
         repository.getCars() shouldContain expectedCar
     }
 
     @Test
     fun `updateCar should update colour`() {
-        val repository = CarsRepository()
-        val command = UpdateCarCommand(id = 5, colour = "White")
+        val command = UpdateCarCommand(id = id2, colour = "White")
+        connection.createStatement().apply {
+            execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+            execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+        }
 
         val result = repository.updateCar(command)
 
-        val expectedCar = Car(5, "Ford", "White")
         result.isSuccess shouldBe true
+        val expectedCar = Car(id2, "BMW", "White")
         result.getOrThrow() shouldBe expectedCar
         repository.getCars() shouldContain expectedCar
     }
 
     @Test
     fun `updateCar should return car not found`() {
-        val repository = CarsRepository()
-        val command = UpdateCarCommand(id = 99)
+        val command = UpdateCarCommand(id = id99)
 
         val result = repository.updateCar(command)
 

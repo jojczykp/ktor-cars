@@ -1,6 +1,7 @@
 val kotlin_version: String by project
 val kodein_version: String by project
 val logback_version: String by project
+val postgres_version: String by project
 val jupiter_version: String by project
 val mockk_version: String by project
 val kotest_version: String by project
@@ -46,12 +47,16 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
 
+    // DB
+    implementation("org.postgresql:postgresql:42.7.4")
+
     // Tests
     testImplementation("io.ktor:ktor-server-test-host-jvm")
     testImplementation("io.ktor:ktor-client-content-negotiation-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("io.mockk:mockk-jvm:${mockk_version}")
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotest_version")
+    testImplementation("org.testcontainers:postgresql:$postgres_version")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiter_version")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiter_version")
 }

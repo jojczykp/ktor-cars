@@ -1,7 +1,7 @@
 package org.alterbit.model
 
 data class Car(
-    val id: Int,
+    val id: String,
     val make: String,
     val colour: String
 )
