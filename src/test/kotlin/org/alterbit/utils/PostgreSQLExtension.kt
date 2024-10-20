@@ -1,23 +1,23 @@
 package org.alterbit.utils
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import org.junit.jupiter.api.extension.AfterAllCallback
-import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.MountableFile
-import java.sql.Connection
-import java.sql.DriverManager
+import javax.sql.DataSource
 
-class PostgreSQLExtension(private val rollbackAfterEach: Boolean = false) : BeforeAllCallback, AfterAllCallback, AfterEachCallback {
+class PostgreSQLExtension : BeforeAllCallback, AfterAllCallback {
 
     private lateinit var database: PostgreSQLContainer<*>
-
-    lateinit var connection: Connection
 
     lateinit var url: String
     lateinit var user: String
     lateinit var password: String
+
+    lateinit var dataSource: DataSource
 
     override fun beforeAll(context: ExtensionContext?) {
         database = PostgreSQLContainer("postgres:16-alpine")
@@ -27,22 +27,21 @@ class PostgreSQLExtension(private val rollbackAfterEach: Boolean = false) : Befo
 
         database.start()
 
-        connection = database.run { DriverManager.getConnection(jdbcUrl, username, password) }
-            .apply { autoCommit = !rollbackAfterEach }
-
         url = database.jdbcUrl
         user = database.username
         password = database.password
+
+        dataSource = HikariDataSource(HikariConfig().apply {
+            jdbcUrl = database.jdbcUrl
+            username = database.username
+            password = database.password
+            poolName = javaClass.simpleName
+            maximumPoolSize = 3
+        })
     }
 
     override fun afterAll(context: ExtensionContext?) {
-        connection.close()
+        (dataSource as HikariDataSource).close()
         database.stop()
-    }
-
-    override fun afterEach(context: ExtensionContext?) {
-        if (rollbackAfterEach) {
-            connection.rollback()
-        }
     }
 }

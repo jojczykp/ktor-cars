@@ -31,9 +31,9 @@ class CarsApplicationTest {
         fun setup() {
             val defaultConfig = HoconApplicationConfig(ConfigFactory.load("application.conf"))
             val databaseConfig = MapApplicationConfig(
-                "cars.database.url" to database.url,
-                "cars.database.user" to database.user,
-                "cars.database.password" to database.password
+                "app.database.url" to database.url,
+                "app.database.user" to database.user,
+                "app.database.password" to database.password
             )
 
             testConfig = databaseConfig.withFallback(defaultConfig)
