@@ -36,7 +36,7 @@ class CarsApplicationTest {
                 "app.database.password" to database.password
             )
 
-            testConfig = databaseConfig.withFallback(defaultConfig)
+            testConfig = defaultConfig.mergeWith(databaseConfig)
         }
     }
 

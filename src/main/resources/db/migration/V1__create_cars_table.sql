@@ -1,4 +1,3 @@
--- -- create a tables
 CREATE TABLE cars (
     id CHAR(36) PRIMARY KEY,
     make TEXT NOT NULL,

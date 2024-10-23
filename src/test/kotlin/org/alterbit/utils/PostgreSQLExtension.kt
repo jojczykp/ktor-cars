@@ -2,11 +2,11 @@ package org.alterbit.utils
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.utility.MountableFile
 import javax.sql.DataSource
 
 class PostgreSQLExtension : BeforeAllCallback, AfterAllCallback {
@@ -21,10 +21,6 @@ class PostgreSQLExtension : BeforeAllCallback, AfterAllCallback {
 
     override fun beforeAll(context: ExtensionContext?) {
         database = PostgreSQLContainer("postgres:16-alpine")
-            .withCopyFileToContainer(
-                MountableFile.forClasspathResource("init.sql"),
-                "/docker-entrypoint-initdb.d/init.sql")
-
         database.start()
 
         url = database.jdbcUrl
@@ -38,6 +34,11 @@ class PostgreSQLExtension : BeforeAllCallback, AfterAllCallback {
             poolName = javaClass.simpleName
             maximumPoolSize = 3
         })
+
+        Flyway.configure()
+            .dataSource(dataSource)
+            .load()
+            .migrate()
     }
 
     override fun afterAll(context: ExtensionContext?) {

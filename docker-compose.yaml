@@ -9,6 +9,3 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=ktor-cars-db
-    volumes:
-      - ${PWD}/build/docker/postgres/run/db-data/:/var/lib/postgresql/data/
-      - ${PWD}/docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
