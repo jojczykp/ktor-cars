@@ -183,9 +183,9 @@ class CarsApplicationTest {
     fun `PUT car should update a car`() = testApplication {
         environment { config = testConfig }
         val id = createCar("Toyota", "Brown").id
-        client.get("/cars/${id}").bodyAsText() shouldBe """{"id":"${id}","make":"Toyota","colour":"Brown"}"""
+        client.get("/cars/$id").bodyAsText() shouldBe """{"id":"$id","make":"Toyota","colour":"Brown"}"""
 
-        client.put("/cars/${id}") {
+        client.put("/cars/$id") {
             contentType(ContentType.Application.Json)
             setBody("""{"make":"Hyundai","colour":"Blue"}""")
         }.apply {
@@ -193,10 +193,10 @@ class CarsApplicationTest {
             headers["Content-Length"] shouldBe "78"
             headers["Content-Type"] shouldBe "application/json; charset=UTF-8"
             headers.names().size shouldBe 2
-            bodyAsText() shouldBe """{"id":"${id}","make":"Hyundai","colour":"Blue"}"""
+            bodyAsText() shouldBe """{"id":"$id","make":"Hyundai","colour":"Blue"}"""
         }
 
-        client.get("/cars/${id}").bodyAsText() shouldBe """{"id":"${id}","make":"Hyundai","colour":"Blue"}"""
+        client.get("/cars/$id").bodyAsText() shouldBe """{"id":"$id","make":"Hyundai","colour":"Blue"}"""
     }
 
     @Test
