@@ -1,4 +1,4 @@
-package org.alterbit.repositories
+package org.alterbit.database
 
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
@@ -6,19 +6,19 @@ import org.alterbit.dto.CreateCarCommand
 import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.model.Car
 import org.alterbit.utils.PostgreSQLExtension
+import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
 
-class CarsRepositoryTest {
+class CarsDaoTest {
 
     companion object {
         @RegisterExtension
         private val database = PostgreSQLExtension()
     }
 
-    private val repository = CarsRepository(database.dataSource)
-
+    private val dao = Jdbi.create(database.dataSource).installPlugins().onDemand(CarsDao::class.java)
 
     @Test
     fun `getCars should return cars`() {
@@ -36,7 +36,7 @@ class CarsRepositoryTest {
         }
 
         // When
-        val result = repository.getCars()
+        val result = dao.getCars()
 
         // Then
         result shouldContain Car(id1, "Audi", "Red")
@@ -58,20 +58,19 @@ class CarsRepositoryTest {
         }
 
         // When
-        val result = repository.getCar(id1)
+        val result = dao.getCar(id1)
 
         // Then
-        result.isSuccess shouldBe true
-        result.getOrThrow() shouldBe Car(id1, "Audi", "Red")
+        result shouldBe Car(id1, "Audi", "Red")
     }
 
     @Test
     fun `getCar should return car not found`() {
         val id99 = "99999999-9999-9999-9999-999999999999"
 
-        val result = repository.getCar(id99)
+        val result = dao.getCar(id99)
 
-        result.isFailure shouldBe true
+        result shouldBe null
     }
 
     @Test
@@ -87,11 +86,10 @@ class CarsRepositoryTest {
             }
 
             // When
-            val result = repository.deleteCar(id2)
+            val result = dao.deleteCar(id2)
 
             // Then
-            result.isSuccess shouldBe true
-            result.getOrThrow() shouldBe true
+            result shouldBe true
 
             conn.createStatement().use { stmt ->
                 val next = stmt.executeQuery("SELECT * from cars WHERE id = '$id2'").next()
@@ -104,9 +102,9 @@ class CarsRepositoryTest {
     fun `deleteCar should return car not found`() {
         val id99 = "99999999-9999-9999-9999-999999999999"
 
-        val result = repository.deleteCar(id99)
+        val result = dao.deleteCar(id99)
 
-        result.isFailure shouldBe true
+        result shouldBe false
     }
 
     @Test
@@ -114,6 +112,7 @@ class CarsRepositoryTest {
         // Given
         val id1 = "bf108c80-22e2-4ceb-baaf-d1d5df1fd5f3"
         val id2 = "d43bbade-dab8-406b-bcb3-b4086d767764"
+        val id3 = "934a2d43-d80b-4305-a338-367bfa9ba664"
 
         database.dataSource.connection.use { conn ->
             conn.createStatement().use { stmt ->
@@ -125,14 +124,12 @@ class CarsRepositoryTest {
         val command = CreateCarCommand("Kia", "Yellow")
 
         // When
-        val result = repository.createCar(command)
+        val result = dao.createCar(id3, command)
 
         // Then
-        result.isSuccess shouldBe true
-        val createdCar = result.getOrThrow()
-        val expectedCar = Car(createdCar.id, "Kia", "Yellow")
-        result.getOrThrow() shouldBe expectedCar
-        repository.getCars() shouldContain expectedCar
+        result shouldBe true
+        val createdCar = dao.getCar(id3)
+        createdCar shouldBe Car(id3, "Kia", "Yellow")
     }
 
     @Test
@@ -151,13 +148,12 @@ class CarsRepositoryTest {
         val command = UpdateCarCommand(id2, "Alfa Romeo", "Amber")
 
         // When
-        val result = repository.updateCar(command)
+        val result = dao.updateCar(command)
 
         // Then
-        result.isSuccess shouldBe true
-        val expectedCar = Car(id2, "Alfa Romeo", "Amber")
-        result.getOrThrow() shouldBe expectedCar
-        repository.getCars() shouldContain expectedCar
+        result shouldBe true
+        val updatedCar = dao.getCar(id2)
+        updatedCar shouldBe Car(id2, "Alfa Romeo", "Amber")
     }
 
     @Test
@@ -176,13 +172,12 @@ class CarsRepositoryTest {
         val command = UpdateCarCommand(id = id2, make = "Cupra")
 
         // When
-        val result = repository.updateCar(command)
+        val result = dao.updateCar(command)
 
         // Then
-        result.isSuccess shouldBe true
-        val expectedCar = Car(id2, "Cupra", "Blue")
-        result.getOrThrow() shouldBe expectedCar
-        repository.getCars() shouldContain expectedCar
+        result shouldBe true
+        val updatedCar = dao.getCar(id2)
+        updatedCar shouldBe Car(id2, "Cupra", "Blue")
     }
 
     @Test
@@ -201,13 +196,13 @@ class CarsRepositoryTest {
         val command = UpdateCarCommand(id = id2, colour = "White")
 
         // When
-        val result = repository.updateCar(command)
+        val result = dao.updateCar(command)
 
         // Then
-        result.isSuccess shouldBe true
-        val expectedCar = Car(id2, "BMW", "White")
-        result.getOrThrow() shouldBe expectedCar
-        repository.getCars() shouldContain expectedCar
+        result shouldBe true
+        val updatedCar = dao.getCar(id2)
+        updatedCar shouldBe Car(id2, "BMW", "White")
+
     }
 
     @Test
@@ -215,8 +210,8 @@ class CarsRepositoryTest {
         val id99 = "99999999-9999-9999-9999-999999999999"
         val command = UpdateCarCommand(id = id99)
 
-        val result = repository.updateCar(command)
+        val result = dao.updateCar(command)
 
-        result.isFailure shouldBe true
+        result shouldBe false
     }
 }

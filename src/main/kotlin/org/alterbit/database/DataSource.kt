@@ -1,4 +1,4 @@
-package org.alterbit.repositories
+package org.alterbit.database
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource

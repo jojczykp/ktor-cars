@@ -1,114 +1,228 @@
 package org.alterbit.services
 
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
-import io.ktor.server.plugins.*
-import io.mockk.every
-import io.mockk.mockk
 import org.alterbit.dto.CreateCarCommand
 import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.model.Car
-import org.alterbit.repositories.CarsRepository
+import org.alterbit.database.CarsDao
+import org.alterbit.utils.PostgreSQLExtension
+import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.RegisterExtension
+
 
 class CarsServiceTest {
 
-    private val repository = mockk<CarsRepository>()
+    companion object {
+        @RegisterExtension
+        private val database = PostgreSQLExtension()
+    }
 
-    private val service = CarsService(repository)
+    private val dao = Jdbi.create(database.dataSource).installPlugins().onDemand(CarsDao::class.java)
+    private val service = CarsService(dao)
+
 
     @Test
     fun `getCars should return cars`() {
-        val expectedCars = setOf(
-            Car("c37da7b1-8dbe-4b8e-8580-1340eb9e6f27", "Porsche", "Red"),
-            Car("946efb67-35de-437c-97b7-bc20e8cc69fe", "Lamborghini", "Azure"))
-        every { repository.getCars() } returns expectedCars
+        // Given
+        val id1 = "0684c5f5-cc63-426e-a86d-da3f7e6521ad"
+        val id2 = "ab343f4d-101f-4c75-985f-601f648336c9"
+        val id3 = "07471545-ce58-4ea7-8160-79f89b15c1d4"
 
-        val actualCars = service.getCars()
+        database.dataSource.connection.use { conn ->
+            conn.createStatement().use { stmt ->
+                stmt.execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+                stmt.execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+                stmt.execute("INSERT INTO cars (id, make, colour) VALUES ('$id3', 'Lexus', 'Pink')")
+            }
+        }
 
-        actualCars shouldBe expectedCars
+        // When
+        val result = service.getCars()
+
+        // Then
+        result shouldContain Car(id1, "Audi", "Red")
+        result shouldContain Car(id2, "BMW", "Blue")
+        result shouldContain Car(id3, "Lexus", "Pink")
     }
 
     @Test
     fun `getCar should return a car`() {
-        val id = "792533c3-3451-4b31-ae2d-be8babdd67c5"
-        val expectedCar = Car(id, "Porsche", "Orange")
-        every { repository.getCar(id) } returns Result.success(expectedCar)
+        // Given
+        val id1 = "c56c2b2f-1c64-4149-80c1-a630c796bef6"
+        val id2 = "71dbc2b4-e332-4fe2-bd28-019905a21efa"
 
-        val result = service.getCar(id)
+        database.dataSource.connection.use { conn ->
+            conn.createStatement().use { stmt ->
+                stmt.execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+                stmt.execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+            }
+        }
 
-        result.getOrThrow() shouldBe expectedCar
+        // When
+        val result = service.getCar(id1)
+
+        // Then
+        result.isSuccess shouldBe true
+        result.getOrThrow() shouldBe Car(id1, "Audi", "Red")
     }
 
     @Test
     fun `getCar should return car not found`() {
-        val id = "f2c2c263-e6be-49ad-a703-02237280d05a"
-        every { repository.getCar(id) } returns Result.failure(NotFoundException())
+        val id99 = "99999999-9999-9999-9999-999999999999"
 
-        val result = service.getCar(id)
+        val result = service.getCar(id99)
 
         result.isFailure shouldBe true
+        result.exceptionOrNull() shouldBe IllegalArgumentException("Car with id $id99 not found")
     }
 
     @Test
     fun `deleteCar should delete a car`() {
-        val id = "b8dac893-38c5-421d-a66b-51aec22b5770"
-        every { repository.deleteCar(id) } returns Result.success(true)
+        database.dataSource.connection.use { conn ->
+            // Given
+            val id1 = "51d2ba56-a873-4876-b54e-045fff4fbcbd"
+            val id2 = "ec4df559-0f05-40e4-ac7e-c543348379fa"
 
-        val result = service.deleteCar(id)
+            conn.createStatement().use { stmt ->
+                stmt.execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+                stmt.execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+            }
 
-        result.getOrThrow() shouldBe true
+            // When
+            val result = service.deleteCar(id2)
+
+            // Then
+            result.isSuccess shouldBe true
+            result.getOrThrow() shouldBe true
+
+            conn.createStatement().use { stmt ->
+                val next = stmt.executeQuery("SELECT * from cars WHERE id = '$id2'").next()
+                next shouldBe false
+            }
+        }
     }
 
     @Test
     fun `deleteCar should return car not found`() {
-        val id = "dd745d2b-d9d2-48cf-be8a-7e091abce097"
-        every { repository.deleteCar(id) } returns Result.success(false)
+        val id99 = "99999999-9999-9999-9999-999999999999"
 
-        val result = service.deleteCar(id)
+        val result = service.deleteCar(id99)
 
+        result.isSuccess shouldBe true
         result.getOrThrow() shouldBe false
     }
 
     @Test
     fun `createCar should create a new car`() {
-        val id = "f2fd207f-6578-43e5-bc7c-5368c6ae43a5"
-        val make = "Kia"
-        val colour = "Indigo"
-        val expectedCar = Car(id, make, colour)
-        val command = CreateCarCommand(make, colour)
-        every { repository.createCar(command) } returns Result.success(expectedCar)
+        // Given
+        val id1 = "bf108c80-22e2-4ceb-baaf-d1d5df1fd5f3"
+        val id2 = "d43bbade-dab8-406b-bcb3-b4086d767764"
 
+        database.dataSource.connection.use { conn ->
+            conn.createStatement().use { stmt ->
+                stmt.execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+                stmt.execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+            }
+        }
+
+        val command = CreateCarCommand("Kia", "Yellow")
+
+        // When
         val result = service.createCar(command)
 
+        // Then
         result.isSuccess shouldBe true
+        val createdCar = result.getOrThrow()
+        val expectedCar = Car(createdCar.id, "Kia", "Yellow")
         result.getOrThrow() shouldBe expectedCar
+        service.getCars() shouldContain expectedCar
     }
 
     @Test
-    fun `updateCar should update a car`() {
-        val id = "9ab8d756-5512-4dc0-8cf0-4528bcf1de24"
-        val make = "Rolls Royce"
-        val colour = "Violet"
-        val command = UpdateCarCommand(id, make, colour)
-        val expectedCar = Car(id, make, colour)
-        every { repository.updateCar(command) } returns Result.success(expectedCar)
+    fun `updateCar should update all car properties`() {
+        // Given
+        val id1 = "2c22b81d-baf5-4dc8-b699-cff49e8cec6e"
+        val id2 = "99031e63-490f-45fc-b18e-d3df01b8fe94"
 
+        database.dataSource.connection.use { conn ->
+            conn.createStatement().use { stmt ->
+                stmt.execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+                stmt.execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+            }
+        }
+
+        val command = UpdateCarCommand(id2, "Alfa Romeo", "Amber")
+
+        // When
         val result = service.updateCar(command)
 
+        // Then
         result.isSuccess shouldBe true
+        val expectedCar = Car(id2, "Alfa Romeo", "Amber")
         result.getOrThrow() shouldBe expectedCar
+        service.getCars() shouldContain expectedCar
+    }
+
+    @Test
+    fun `updateCar should update make`() {
+        // Given
+        val id1 = "2e282b36-b05e-435c-9c89-d58f1426a158"
+        val id2 = "240ac987-3353-43f9-ba59-046aa4394755"
+
+        database.dataSource.connection.use { conn ->
+            conn.createStatement().use { stmt ->
+                stmt.execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+                stmt.execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+            }
+        }
+
+        val command = UpdateCarCommand(id = id2, make = "Cupra")
+
+        // When
+        val result = service.updateCar(command)
+
+        // Then
+        result.isSuccess shouldBe true
+        val expectedCar = Car(id2, "Cupra", "Blue")
+        result.getOrThrow() shouldBe expectedCar
+        service.getCars() shouldContain expectedCar
+    }
+
+    @Test
+    fun `updateCar should update colour`() {
+        // Given
+        val id1 = "c1a19087-d50f-416c-ab11-fe5375cec4b6"
+        val id2 = "e625081a-0ee4-4720-9548-317170fd1265"
+
+        database.dataSource.connection.use { conn ->
+            conn.createStatement().use { stmt ->
+                stmt.execute("INSERT INTO cars (id, make, colour) VALUES ('$id1', 'Audi', 'Red')")
+                stmt.execute("INSERT INTO cars (id, make, colour) VALUES ('$id2', 'BMW', 'Blue')")
+            }
+        }
+
+        val command = UpdateCarCommand(id = id2, colour = "White")
+
+        // When
+        val result = service.updateCar(command)
+
+        // Then
+        result.isSuccess shouldBe true
+        val expectedCar = Car(id2, "BMW", "White")
+        result.getOrThrow() shouldBe expectedCar
+        service.getCars() shouldContain expectedCar
     }
 
     @Test
     fun `updateCar should return car not found`() {
-        val id = "240ee34f-5bdb-4a4b-b5b7-fc54bbcf0e53"
-        val make = "Cadillac"
-        val colour = "Grey"
-        val command = UpdateCarCommand(id, make, colour)
-        every { repository.updateCar(command) } returns Result.failure(NotFoundException())
+        val id99 = "99999999-9999-9999-9999-999999999999"
+        val command = UpdateCarCommand(id = id99)
 
         val result = service.updateCar(command)
 
         result.isFailure shouldBe true
+        result.exceptionOrNull() shouldBe IllegalArgumentException("Car with id $id99 not found")
     }
 }

@@ -32,9 +32,13 @@ fun Application.configureRouting() {
         get("/cars/{id}") {
             runCatching { carsService.getCar(call.parameters["id"]!!.toString()) }
                 .onSuccess {
-                    val car = it.getOrThrow()
-                    val responseBody = carResponseAssembler.carToResponse(car)
-                    call.respond(responseBody)
+                    if (it.isFailure) {
+                        call.respond(HttpStatusCode.NotFound)
+                    } else {
+                        val car = it.getOrThrow()
+                        val responseBody = carResponseAssembler.carToResponse(car)
+                        call.respond(responseBody)
+                    }
                 }
                 .onFailure { call.respond(HttpStatusCode.NotFound) }
         }

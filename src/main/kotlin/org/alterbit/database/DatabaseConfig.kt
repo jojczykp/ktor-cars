@@ -1,4 +1,4 @@
-package org.alterbit.repositories
+package org.alterbit.database
 
 import io.ktor.server.config.*
 

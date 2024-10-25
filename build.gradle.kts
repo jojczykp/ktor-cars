@@ -1,6 +1,7 @@
 val kotlin_version: String by project
 val kodein_version: String by project
 val logback_version: String by project
+val jdbi_version: String by project
 val flyway_version: String by project
 val jupiter_version: String by project
 val mockk_version: String by project
@@ -52,6 +53,16 @@ dependencies {
     implementation("com.zaxxer:HikariCP:6.0.0")
     implementation("org.flywaydb:flyway-core:$flyway_version")
     implementation("org.flywaydb:flyway-database-postgresql:$flyway_version")
+    implementation("org.jdbi:jdbi3-core:$jdbi_version")  // Use the latest version
+
+    // JDBI support for SQL object API (optional but useful for Kotlin)
+    implementation("org.jdbi:jdbi3-sqlobject:$jdbi_version")
+
+    // JDBI support for Kotlin (necessary for better Kotlin integration)
+    implementation("org.jdbi:jdbi3-kotlin:$jdbi_version")
+
+    // JDBI Kotlin SQLObject support (if you are using SQL Objects with Kotlin)
+    implementation("org.jdbi:jdbi3-kotlin-sqlobject:$jdbi_version")
 
     // Tests
     testImplementation("io.ktor:ktor-server-test-host-jvm")

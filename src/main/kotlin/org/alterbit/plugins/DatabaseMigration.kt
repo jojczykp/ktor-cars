@@ -1,7 +1,7 @@
 package org.alterbit.plugins
 
 import io.ktor.server.application.*
-import org.alterbit.repositories.DatabaseConfig
+import org.alterbit.database.DatabaseConfig
 import org.flywaydb.core.Flyway
 
 fun Application.migrateDatabase() {
