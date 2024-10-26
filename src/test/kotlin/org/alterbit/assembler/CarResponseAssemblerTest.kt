@@ -1,16 +1,15 @@
 package org.alterbit.assembler
 
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import org.alterbit.model.Car
 import org.alterbit.rest.CarResponse
-import org.junit.jupiter.api.Test
 
-class CarResponseAssemblerTest {
+class CarResponseAssemblerTest : ShouldSpec({
 
-    private val assembler = CarResponseAssembler()
+    val assembler = CarResponseAssembler()
 
-    @Test
-    fun `should create response from car`() {
+    should("create response from car") {
         val id = "17369f5e-1669-43cf-802d-1d55aa570527"
         val car = Car(id, "make", "colour")
 
@@ -18,4 +17,4 @@ class CarResponseAssemblerTest {
 
         response shouldBe CarResponse(id, "make", "colour")
     }
-}
+})

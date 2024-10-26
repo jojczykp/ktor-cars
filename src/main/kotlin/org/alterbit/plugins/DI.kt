@@ -8,6 +8,7 @@ import org.alterbit.assembler.UpdateCarAssembler
 import org.alterbit.database.CarsDao
 import org.alterbit.database.DataSource
 import org.alterbit.database.DatabaseConfig
+import org.alterbit.database.CarsIdGenerator
 import org.alterbit.services.CarsService
 import org.jdbi.v3.core.Jdbi
 import org.kodein.di.bind
@@ -24,7 +25,8 @@ fun Application.configureDI() {
         bind<Jdbi>() with singleton { Jdbi.create(instance<javax.sql.DataSource>()).installPlugins() }
         bind<CarsDao>() with singleton { instance<Jdbi>().onDemand(CarsDao::class.java) }
 
-        bind<CarsService>() with singleton { CarsService(instance()) }
+        bind<CarsIdGenerator>() with singleton { CarsIdGenerator() }
+        bind<CarsService>() with singleton { CarsService(instance(), instance()) }
 
         bind<CreateCarAssembler>() with singleton { CreateCarAssembler() }
         bind<UpdateCarAssembler>() with singleton { UpdateCarAssembler() }

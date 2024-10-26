@@ -4,20 +4,29 @@ import org.alterbit.dto.CreateCarCommand
 import org.alterbit.dto.UpdateCarCommand
 import org.alterbit.model.Car
 import org.alterbit.database.CarsDao
-import java.util.*
+import org.alterbit.database.CarsIdGenerator
+import org.alterbit.exceptions.CreateCarException
+import org.alterbit.exceptions.CarNotFoundException
+import org.alterbit.exceptions.UpdateCarException
 
-class CarsService(private val carsDao: CarsDao) {
+class CarsService(
+    private val carsDao: CarsDao,
+    private val carsIdGenerator: CarsIdGenerator
+) {
 
     fun getCars(): Set<Car> = carsDao.getCars()
 
     fun getCar(id: String): Result<Car> = runCatching {
-        carsDao.getCar(id) ?: throw IllegalArgumentException("Car with id $id not found")
+        carsDao.getCar(id) ?: throw CarNotFoundException(id)
     }
 
     fun createCar(command: CreateCarCommand): Result<Car> = runCatching {
-        val id = UUID.randomUUID().toString()
-        carsDao.createCar(id, command)
-        carsDao.getCar(id) ?: throw IllegalArgumentException("Car with id $id not found")
+        val id = carsIdGenerator.newId()
+        if (carsDao.createCar(id, command)) {
+            carsDao.getCar(id) ?: throw CarNotFoundException(id)
+        } else {
+            throw CreateCarException(id)
+        }
     }
 
     fun deleteCar(id: String): Result<Boolean> = runCatching {
@@ -26,9 +35,9 @@ class CarsService(private val carsDao: CarsDao) {
 
     fun updateCar(command: UpdateCarCommand): Result<Car> = runCatching {
         if (carsDao.updateCar(command)) {
-            carsDao.getCar(command.id) ?: throw IllegalArgumentException("Car with id ${command.id} not found")
+            carsDao.getCar(command.id) ?: throw CarNotFoundException(command.id)
         } else {
-            throw IllegalArgumentException("Car with id ${command.id} not found")
+            throw UpdateCarException(command.id)
         }
     }
 }

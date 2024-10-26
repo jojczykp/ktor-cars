@@ -1,13 +1,12 @@
 package org.alterbit.database
 
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.server.config.*
-import org.junit.jupiter.api.Test
 
-class DatabaseConfigTest {
+class DatabaseConfigTest : ShouldSpec({
 
-    @Test
-    fun `should get parameters from application config`() {
+    should("get parameters from application config") {
         val applicationConfig = MapApplicationConfig(
             "app.database.url" to "jdbc:postgresql://example.com:5432/test",
             "app.database.user" to "test-user",
@@ -25,4 +24,4 @@ class DatabaseConfigTest {
             maximumPoolSize shouldBe 12345
         }
     }
-}
+})
