@@ -1,4 +1,4 @@
-package org.alterbit.rest
+package org.alterbit.rest.cars
 
 import kotlinx.serialization.Serializable
 

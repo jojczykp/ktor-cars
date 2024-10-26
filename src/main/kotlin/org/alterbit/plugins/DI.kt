@@ -2,9 +2,7 @@ package org.alterbit.plugins
 
 import io.ktor.server.application.*
 import io.ktor.server.config.*
-import org.alterbit.assembler.CarResponseAssembler
-import org.alterbit.assembler.CreateCarAssembler
-import org.alterbit.assembler.UpdateCarAssembler
+import org.alterbit.rest.cars.CarRestConverter
 import org.alterbit.database.cars.CarsDao
 import org.alterbit.database.DataSource
 import org.alterbit.database.DatabaseConfig
@@ -28,8 +26,6 @@ fun Application.configureDI() {
         bind<CarsIdGenerator>() with singleton { CarsIdGenerator() }
         bind<CarsService>() with singleton { CarsService(instance(), instance()) }
 
-        bind<CreateCarAssembler>() with singleton { CreateCarAssembler() }
-        bind<UpdateCarAssembler>() with singleton { UpdateCarAssembler() }
-        bind<CarResponseAssembler>() with singleton { CarResponseAssembler() }
+        bind<CarRestConverter>() with singleton { CarRestConverter() }
     }
 }

@@ -5,11 +5,9 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.alterbit.assembler.CarResponseAssembler
-import org.alterbit.assembler.CreateCarAssembler
-import org.alterbit.assembler.UpdateCarAssembler
-import org.alterbit.rest.CreateCarRequest
-import org.alterbit.rest.UpdateCarRequest
+import org.alterbit.rest.cars.CarRestConverter
+import org.alterbit.rest.cars.CreateCarRequest
+import org.alterbit.rest.cars.UpdateCarRequest
 import org.alterbit.services.CarsService
 import org.kodein.di.instance
 import org.kodein.di.ktor.closestDI
@@ -19,13 +17,11 @@ fun Application.configureRouting() {
     routing {
         val carsService: CarsService by closestDI().instance()
 
-        val createCarsAssembler: CreateCarAssembler by closestDI().instance()
-        val updateCarsAssembler: UpdateCarAssembler by closestDI().instance()
-        val carResponseAssembler: CarResponseAssembler by closestDI().instance()
+        val carRestConverter: CarRestConverter by closestDI().instance()
 
         get("/cars") {
             val responseBody = carsService.getCars()
-                .map { carResponseAssembler.carToResponse(it) }
+                .map { carRestConverter.modelToResponse(it) }
             call.respond(responseBody)
         }
 
@@ -36,7 +32,7 @@ fun Application.configureRouting() {
                         call.respond(HttpStatusCode.NotFound)
                     } else {
                         val car = it.getOrThrow()
-                        val responseBody = carResponseAssembler.carToResponse(car)
+                        val responseBody = carRestConverter.modelToResponse(car)
                         call.respond(responseBody)
                     }
                 }
@@ -54,10 +50,10 @@ fun Application.configureRouting() {
 
         post("/cars") {
             val requestBody = call.receive<CreateCarRequest>()
-            val command = createCarsAssembler.requestToCommand(requestBody)
+            val command = carRestConverter.requestToCommand(requestBody)
             val newCar = carsService.createCar(command)
             newCar.onSuccess {
-                val responseBody = carResponseAssembler.carToResponse(it)
+                val responseBody = carRestConverter.modelToResponse(it)
                 call.respond(HttpStatusCode.Created, responseBody)
             }
         }
@@ -66,10 +62,10 @@ fun Application.configureRouting() {
             runCatching { call.parameters["id"]!!.toString() }
                 .onSuccess { id ->
                     val requestBody = call.receive<UpdateCarRequest>()
-                    val command = updateCarsAssembler.requestToCommand(id, requestBody)
+                    val command = carRestConverter.requestToCommand(id, requestBody)
                     val updatedCar = carsService.updateCar(command)
                     updatedCar.onSuccess {
-                        val responseBody = carResponseAssembler.carToResponse(it)
+                        val responseBody = carRestConverter.modelToResponse(it)
                         call.respond(HttpStatusCode.OK, responseBody)
                     }
                 }
