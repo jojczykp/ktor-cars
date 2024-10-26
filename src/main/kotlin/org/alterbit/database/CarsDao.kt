@@ -7,7 +7,7 @@ import org.jdbi.v3.sqlobject.config.RegisterRowMapper
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.sqlobject.statement.SqlUpdate
 
-@RegisterRowMapper(CarMapper::class)
+@RegisterRowMapper(CarsRowMapper::class)
 interface CarsDao {
 
     @SqlQuery("SELECT * FROM cars")
