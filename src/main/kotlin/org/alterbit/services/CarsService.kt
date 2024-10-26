@@ -3,8 +3,8 @@ package org.alterbit.services
 import org.alterbit.commands.CreateCarCommand
 import org.alterbit.commands.UpdateCarCommand
 import org.alterbit.model.Car
-import org.alterbit.database.CarsDao
-import org.alterbit.database.CarsIdGenerator
+import org.alterbit.database.cars.CarsDao
+import org.alterbit.database.cars.CarsIdGenerator
 import org.alterbit.exceptions.CreateCarException
 import org.alterbit.exceptions.CarNotFoundException
 import org.alterbit.exceptions.UpdateCarException

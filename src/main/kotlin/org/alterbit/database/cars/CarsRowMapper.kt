@@ -1,4 +1,4 @@
-package org.alterbit.database
+package org.alterbit.database.cars
 
 import org.alterbit.model.Car
 import org.jdbi.v3.core.mapper.RowMapper

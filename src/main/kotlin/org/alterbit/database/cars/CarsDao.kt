@@ -1,4 +1,4 @@
-package org.alterbit.database
+package org.alterbit.database.cars
 
 import org.alterbit.commands.CreateCarCommand
 import org.alterbit.commands.UpdateCarCommand

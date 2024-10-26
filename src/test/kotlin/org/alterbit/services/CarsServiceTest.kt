@@ -10,8 +10,8 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.alterbit.database.CarsDao
-import org.alterbit.database.CarsIdGenerator
+import org.alterbit.database.cars.CarsDao
+import org.alterbit.database.cars.CarsIdGenerator
 import org.alterbit.commands.CreateCarCommand
 import org.alterbit.commands.UpdateCarCommand
 import org.alterbit.exceptions.CarNotFoundException

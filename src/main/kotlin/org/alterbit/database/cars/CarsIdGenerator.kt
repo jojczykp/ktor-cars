@@ -1,4 +1,4 @@
-package org.alterbit.database
+package org.alterbit.database.cars
 
 import java.util.*
 

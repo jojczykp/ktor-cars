@@ -7,6 +7,7 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import org.alterbit.commands.CreateCarCommand
 import org.alterbit.commands.UpdateCarCommand
+import org.alterbit.database.cars.CarsDao
 import org.alterbit.model.Car
 import org.flywaydb.core.Flyway
 import org.jdbi.v3.core.Jdbi

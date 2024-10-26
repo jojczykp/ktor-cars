@@ -5,10 +5,10 @@ import io.ktor.server.config.*
 import org.alterbit.assembler.CarResponseAssembler
 import org.alterbit.assembler.CreateCarAssembler
 import org.alterbit.assembler.UpdateCarAssembler
-import org.alterbit.database.CarsDao
+import org.alterbit.database.cars.CarsDao
 import org.alterbit.database.DataSource
 import org.alterbit.database.DatabaseConfig
-import org.alterbit.database.CarsIdGenerator
+import org.alterbit.database.cars.CarsIdGenerator
 import org.alterbit.services.CarsService
 import org.jdbi.v3.core.Jdbi
 import org.kodein.di.bind

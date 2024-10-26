@@ -2,6 +2,7 @@ package org.alterbit.database
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.string.shouldMatch
+import org.alterbit.database.cars.CarsIdGenerator
 
 class CarsIdGeneratorTest : ShouldSpec({
 
