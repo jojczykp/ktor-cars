@@ -1,7 +1,7 @@
 package org.alterbit.database
 
-import org.alterbit.dto.CreateCarCommand
-import org.alterbit.dto.UpdateCarCommand
+import org.alterbit.commands.CreateCarCommand
+import org.alterbit.commands.UpdateCarCommand
 import org.alterbit.model.Car
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper
 import org.jdbi.v3.sqlobject.statement.SqlQuery

@@ -12,8 +12,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.alterbit.database.CarsDao
 import org.alterbit.database.CarsIdGenerator
-import org.alterbit.dto.CreateCarCommand
-import org.alterbit.dto.UpdateCarCommand
+import org.alterbit.commands.CreateCarCommand
+import org.alterbit.commands.UpdateCarCommand
 import org.alterbit.exceptions.CarNotFoundException
 import org.alterbit.exceptions.CreateCarException
 import org.alterbit.exceptions.UpdateCarException

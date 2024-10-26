@@ -1,4 +1,4 @@
-package org.alterbit.dto
+package org.alterbit.commands
 
 data class CreateCarCommand(
     val make: String,

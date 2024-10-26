@@ -2,7 +2,7 @@ package org.alterbit.assembler
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import org.alterbit.dto.UpdateCarCommand
+import org.alterbit.commands.UpdateCarCommand
 import org.alterbit.rest.UpdateCarRequest
 
 class UpdateCarAssemblerTest : ShouldSpec({

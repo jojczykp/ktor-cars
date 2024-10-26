@@ -1,7 +1,7 @@
 package org.alterbit.services
 
-import org.alterbit.dto.CreateCarCommand
-import org.alterbit.dto.UpdateCarCommand
+import org.alterbit.commands.CreateCarCommand
+import org.alterbit.commands.UpdateCarCommand
 import org.alterbit.model.Car
 import org.alterbit.database.CarsDao
 import org.alterbit.database.CarsIdGenerator

@@ -5,8 +5,8 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.extensions.testcontainers.JdbcDatabaseContainerExtension
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
-import org.alterbit.dto.CreateCarCommand
-import org.alterbit.dto.UpdateCarCommand
+import org.alterbit.commands.CreateCarCommand
+import org.alterbit.commands.UpdateCarCommand
 import org.alterbit.model.Car
 import org.flywaydb.core.Flyway
 import org.jdbi.v3.core.Jdbi

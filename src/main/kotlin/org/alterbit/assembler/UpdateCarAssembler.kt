@@ -1,6 +1,6 @@
 package org.alterbit.assembler
 
-import org.alterbit.dto.UpdateCarCommand
+import org.alterbit.commands.UpdateCarCommand
 import org.alterbit.rest.UpdateCarRequest
 
 class UpdateCarAssembler {
