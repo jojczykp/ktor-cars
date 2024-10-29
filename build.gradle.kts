@@ -68,11 +68,11 @@ dependencies {
     testImplementation("io.mockk:mockk-jvm:$mockk_version")
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotest_version")
     testImplementation("io.kotest:kotest-framework-api-jvm:$kotest_version")
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotest_version") // runtime only?
     testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:2.0.2")
     testImplementation("org.testcontainers:postgresql:1.20.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiter_version")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-api:$jupiter_version")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiter_version")
+    testRuntimeOnly("io.kotest:kotest-runner-junit5-jvm:$kotest_version")
 }
 
 tasks.test {
