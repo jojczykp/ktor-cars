@@ -37,16 +37,17 @@ dependencies {
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("io.ktor:ktor-server-config-yaml")
 
+    // JSON Serialization
+    implementation("io.ktor:ktor-server-resources-jvm")
+    implementation("io.ktor:ktor-server-content-negotiation-jvm")
+    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
+
     // Dependency Injection
     implementation("org.kodein.di:kodein-di-jvm:$kodein_version")
     implementation("org.kodein.di:kodein-di-framework-ktor-server-jvm:$kodein_version")
 
-    // Logback Logging
+    // Logging
     implementation("ch.qos.logback:logback-classic:$logback_version")
-
-    // JSON Serialization
-    implementation("io.ktor:ktor-server-content-negotiation-jvm")
-    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
 
     // DB
     implementation("org.postgresql:postgresql:42.7.4")

@@ -13,31 +13,24 @@ class CarsService(
     private val carsDao: CarsDao,
     private val carsIdGenerator: CarsIdGenerator
 ) {
-
     fun getCars(): Set<Car> = carsDao.getCars()
 
-    fun getCar(id: String): Result<Car> = runCatching {
-        carsDao.getCar(id) ?: throw CarNotFoundException(id)
-    }
+    fun getCar(id: String): Car? = carsDao.getCar(id)
 
-    fun createCar(command: CreateCarCommand): Result<Car> = runCatching {
+    fun createCar(command: CreateCarCommand): Car {
         val id = carsIdGenerator.newId()
-        if (carsDao.createCar(id, command)) {
-            carsDao.getCar(id) ?: throw CarNotFoundException(id)
-        } else {
-            throw CreateCarException(id)
-        }
+        carsDao.createCar(id, command) || throw CreateCarException(id)
+        val createdCar = carsDao.getCar(id) ?: throw CarNotFoundException(id)
+
+        return createdCar
     }
 
-    fun deleteCar(id: String): Result<Boolean> = runCatching {
-        carsDao.deleteCar(id)
-    }
+    fun deleteCar(id: String): Boolean = carsDao.deleteCar(id)
 
-    fun updateCar(command: UpdateCarCommand): Result<Car> = runCatching {
-        if (carsDao.updateCar(command)) {
-            carsDao.getCar(command.id) ?: throw CarNotFoundException(command.id)
-        } else {
-            throw UpdateCarException(command.id)
-        }
+    fun updateCar(command: UpdateCarCommand): Car? {
+        carsDao.updateCar(command) || return null
+        val updatedCar = carsDao.getCar(command.id) ?: throw CarNotFoundException(command.id)
+
+        return updatedCar
     }
 }

@@ -3,9 +3,13 @@ package org.alterbit.plugins
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
+import io.ktor.server.resources.*
+import io.ktor.server.resources.post
+import io.ktor.server.resources.put
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.alterbit.rest.cars.CarRestConverter
+import org.alterbit.rest.cars.CarsConverter
+import org.alterbit.rest.cars.Cars
 import org.alterbit.rest.cars.CreateCarRequest
 import org.alterbit.rest.cars.UpdateCarRequest
 import org.alterbit.services.CarsService
@@ -14,62 +18,46 @@ import org.kodein.di.ktor.closestDI
 
 fun Application.configureRouting() {
 
+    install(Resources)
+
     routing {
         val carsService: CarsService by closestDI().instance()
+        val carsConverter: CarsConverter by closestDI().instance()
 
-        val carRestConverter: CarRestConverter by closestDI().instance()
-
-        get("/cars") {
-            val responseBody = carsService.getCars()
-                .map { carRestConverter.modelToResponse(it) }
-            call.respond(responseBody)
+        get<Cars> {
+            carsService.getCars()
+                .map { cars -> carsConverter.toResponse(cars) }
+                .let { responseBody -> call.respond(HttpStatusCode.OK, responseBody) }
         }
 
-        get("/cars/{id}") {
-            runCatching { carsService.getCar(call.parameters["id"]!!.toString()) }
-                .onSuccess {
-                    if (it.isFailure) {
-                        call.respond(HttpStatusCode.NotFound)
-                    } else {
-                        val car = it.getOrThrow()
-                        val responseBody = carRestConverter.modelToResponse(car)
-                        call.respond(responseBody)
-                    }
-                }
-                .onFailure { call.respond(HttpStatusCode.NotFound) }
+        get<Cars.Id> {
+            carsService.getCar(it.id)
+                ?.let { car -> carsConverter.toResponse(car) }
+                ?.let { responseBody -> call.respond(HttpStatusCode.OK, responseBody) }
+                ?: call.respond(HttpStatusCode.NotFound)
         }
 
-        delete("/cars/{id}") {
-            runCatching { carsService.deleteCar(call.parameters["id"]!!.toString()) }
-                .onSuccess {
-                    val deleted = it.getOrThrow()
-                    call.respond(if (deleted) HttpStatusCode.NoContent else HttpStatusCode.NotFound)
-                }
-                .onFailure { call.respond(HttpStatusCode.NotFound) }
+        delete<Cars.Id> {
+            carsService.deleteCar(it.id)
+                .let { existed -> if (existed) HttpStatusCode.NoContent else HttpStatusCode.NotFound }
+                .let { status -> call.respond(status) }
         }
 
-        post("/cars") {
-            val requestBody = call.receive<CreateCarRequest>()
-            val command = carRestConverter.requestToCommand(requestBody)
-            val newCar = carsService.createCar(command)
-            newCar.onSuccess {
-                val responseBody = carRestConverter.modelToResponse(it)
-                call.respond(HttpStatusCode.Created, responseBody)
-            }
+        post<Cars> {
+            call.receive<CreateCarRequest>()
+                .let { requestBody -> carsConverter.toCommand(requestBody) }
+                .let { command -> carsService.createCar(command) }
+                .let { car -> carsConverter.toResponse(car) }
+                .let { responseBody -> call.respond(HttpStatusCode.Created, responseBody) }
         }
 
-        put("/cars/{id}") {
-            runCatching { call.parameters["id"]!!.toString() }
-                .onSuccess { id ->
-                    val requestBody = call.receive<UpdateCarRequest>()
-                    val command = carRestConverter.requestToCommand(id, requestBody)
-                    val updatedCar = carsService.updateCar(command)
-                    updatedCar.onSuccess {
-                        val responseBody = carRestConverter.modelToResponse(it)
-                        call.respond(HttpStatusCode.OK, responseBody)
-                    }
-                }
-                .onFailure { call.respond(HttpStatusCode.NotFound) }
+        put<Cars.Id> { request ->
+            call.receive<UpdateCarRequest>()
+                .let { requestBody -> carsConverter.toCommand(request.id, requestBody) }
+                .let { command -> carsService.updateCar(command) }
+                ?.let { car -> carsConverter.toResponse(car) }
+                ?.let { responseBody -> call.respond(HttpStatusCode.OK, responseBody) }
+                ?: call.respond(HttpStatusCode.NotFound)
         }
     }
 }

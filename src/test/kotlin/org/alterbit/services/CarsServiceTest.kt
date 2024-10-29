@@ -1,8 +1,7 @@
 package org.alterbit.services
 
 import io.kotest.core.spec.style.ShouldSpec
-import io.kotest.matchers.result.shouldBeFailure
-import io.kotest.matchers.result.shouldBeSuccess
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.called
@@ -10,14 +9,14 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.alterbit.database.cars.CarsDao
-import org.alterbit.database.cars.CarsIdGenerator
 import org.alterbit.commands.CreateCarCommand
 import org.alterbit.commands.UpdateCarCommand
-import org.alterbit.exceptions.CarNotFoundException
+import org.alterbit.database.cars.CarsDao
+import org.alterbit.database.cars.CarsIdGenerator
 import org.alterbit.exceptions.CreateCarException
 import org.alterbit.exceptions.UpdateCarException
 import org.alterbit.model.Car
+import kotlin.test.assertFailsWith
 
 class CarsServiceTest : ShouldSpec({
 
@@ -57,7 +56,7 @@ class CarsServiceTest : ShouldSpec({
             verify(exactly = 1) { carsIdGenerator.newId() }
             verify(exactly = 1) { dao.createCar(id, command) }
             verify(exactly = 1) { dao.getCar(id) }
-            result shouldBeSuccess car
+            result shouldBe car
         }
 
         should("fail create car if dao failed on creation") {
@@ -65,15 +64,15 @@ class CarsServiceTest : ShouldSpec({
             every { carsIdGenerator.newId() } returns id
             every { dao.createCar(id, command) } returns false
 
-            val result = service.createCar(command)
+            val thrown = assertFailsWith<CreateCarException> {
+                service.createCar(command)
+            }
 
             verify(exactly = 1) { carsIdGenerator.newId() }
             verify(exactly = 1) { dao.createCar(id, command) }
             verify(exactly = 0) { dao.getCar(any()) }
-            result.shouldBeFailure {
-                it.shouldBeInstanceOf<CreateCarException>()
-                it.id shouldBe id
-            }
+            thrown.shouldBeInstanceOf<CreateCarException>()
+            thrown.id shouldBe id
         }
 
         should("capture exception if creation failed") {
@@ -81,12 +80,14 @@ class CarsServiceTest : ShouldSpec({
             every { carsIdGenerator.newId() } returns id
             every { dao.createCar(id, command) } throws exception
 
-            val result = service.createCar(command)
+            val thrown = assertFailsWith<Exception> {
+                service.createCar(command)
+            }
 
             verify(exactly = 1) { carsIdGenerator.newId() }
             verify(exactly = 1) { dao.createCar(id, command) }
             verify(exactly = 0) { dao.getCar(any()) }
-            result shouldBeFailure exception
+            thrown shouldBe exception
         }
 
         should("capture exception if fetch of created car failed") {
@@ -95,12 +96,14 @@ class CarsServiceTest : ShouldSpec({
             every { dao.createCar(id, command) } returns true
             every { dao.getCar(id) } throws exception
 
-            val result = service.createCar(command)
+            val thrown = assertFailsWith<Exception> {
+                service.createCar(command)
+            }
 
             verify(exactly = 1) { carsIdGenerator.newId() }
             verify(exactly = 1) { dao.createCar(id, command) }
             verify(exactly = 1) { dao.getCar(id) }
-            result shouldBeFailure exception
+            thrown shouldBe exception
         }
     }
 
@@ -124,7 +127,7 @@ class CarsServiceTest : ShouldSpec({
             val result = service.getCar(id)
 
             verify { carsIdGenerator wasNot called }
-            result shouldBeSuccess car
+            result shouldBe car
         }
 
         should("fail if car has not been found") {
@@ -133,10 +136,7 @@ class CarsServiceTest : ShouldSpec({
             val result = service.getCar(id)
 
             verify { carsIdGenerator wasNot called }
-            result shouldBeFailure {
-                it.shouldBeInstanceOf<CarNotFoundException>()
-                it.id shouldBe id
-            }
+            result.shouldBeNull()
         }
     }
 
@@ -152,34 +152,35 @@ class CarsServiceTest : ShouldSpec({
             verify(exactly = 1) { dao.updateCar(command) }
             verify(exactly = 1) { dao.getCar(id) }
             verify { carsIdGenerator wasNot called }
-            result shouldBeSuccess car
+            result shouldBe car
         }
 
         should("fail updating car that has not been found") {
             val command = UpdateCarCommand(id, make, colour)
             every { dao.updateCar(command) } returns false
 
-            val result = service.updateCar(command)
+            val thrown = assertFailsWith<UpdateCarException> {
+                service.updateCar(command)
+            }
 
             verify(exactly = 1) { dao.updateCar(command) }
             verify(exactly = 0) { dao.getCar(any()) }
             verify { carsIdGenerator wasNot called }
-            result shouldBeFailure {
-                it.shouldBeInstanceOf<UpdateCarException>()
-                it.id shouldBe id
-            }
+            thrown.id shouldBe id
         }
 
         should("capture exception if update failed") {
             val command = UpdateCarCommand(id, make, colour)
             every { dao.updateCar(command) } throws exception
 
-            val result = service.updateCar(command)
+            val thrown = assertFailsWith<Exception> {
+                service.updateCar(command)
+            }
 
             verify(exactly = 1) { dao.updateCar(command) }
             verify(exactly = 0) { dao.getCar(id) }
             verify { carsIdGenerator wasNot called }
-            result shouldBeFailure exception
+            thrown shouldBe exception
         }
 
         should("capture exception if fetch of updated car failed") {
@@ -187,12 +188,14 @@ class CarsServiceTest : ShouldSpec({
             every { dao.updateCar(command) } returns true
             every { dao.getCar(id) } throws exception
 
-            val result = service.updateCar(command)
+            val thrown = assertFailsWith<Exception> {
+                service.updateCar(command)
+            }
 
             verify(exactly = 1) { dao.updateCar(command) }
             verify(exactly = 1) { dao.getCar(id) }
             verify { carsIdGenerator wasNot called }
-            result shouldBeFailure exception
+            thrown shouldBe exception
         }
     }
 
@@ -205,7 +208,7 @@ class CarsServiceTest : ShouldSpec({
 
             verify(exactly = 1) { dao.deleteCar(id) }
             verify { carsIdGenerator wasNot called }
-            result shouldBeSuccess true
+            result shouldBe true
         }
 
         should("not delete car if car has not been found") {
@@ -215,17 +218,19 @@ class CarsServiceTest : ShouldSpec({
 
             verify(exactly = 1) { dao.deleteCar(id) }
             verify { carsIdGenerator wasNot called }
-            result shouldBeSuccess false
+            result shouldBe false
         }
 
         should("capture exception if deletion failed") {
             every { dao.deleteCar(id) } throws exception
 
-            val result = service.deleteCar(id)
+            val thrown = assertFailsWith<Exception> {
+                service.deleteCar(id)
+            }
 
             verify(exactly = 1) { dao.deleteCar(id) }
             verify { carsIdGenerator wasNot called }
-            result shouldBeFailure exception
+            thrown shouldBe exception
         }
     }
 })
