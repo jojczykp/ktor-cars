@@ -14,7 +14,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
-import org.alterbit.ktorcars.rest.cars.CarResponse
+import org.alterbit.ktorcars.rest.responses.CarResponse
 import org.alterbit.ktorcars.test_utils.FlywayDBContainerExtension
 import org.testcontainers.containers.PostgreSQLContainer
 

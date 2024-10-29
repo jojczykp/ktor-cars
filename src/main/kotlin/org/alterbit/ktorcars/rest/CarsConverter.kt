@@ -1,8 +1,11 @@
-package org.alterbit.ktorcars.rest.cars
+package org.alterbit.ktorcars.rest
 
 import org.alterbit.ktorcars.commands.CreateCarCommand
 import org.alterbit.ktorcars.commands.UpdateCarCommand
 import org.alterbit.ktorcars.model.Car
+import org.alterbit.ktorcars.rest.requests.CreateCarRequest
+import org.alterbit.ktorcars.rest.requests.UpdateCarRequest
+import org.alterbit.ktorcars.rest.responses.CarResponse
 
 class CarsConverter {
 

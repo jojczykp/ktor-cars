@@ -5,12 +5,13 @@ import io.kotest.matchers.shouldBe
 import org.alterbit.ktorcars.commands.CreateCarCommand
 import org.alterbit.ktorcars.commands.UpdateCarCommand
 import org.alterbit.ktorcars.model.Car
-import org.alterbit.ktorcars.rest.cars.CarResponse
-import org.alterbit.ktorcars.rest.cars.CreateCarRequest
+import org.alterbit.ktorcars.rest.responses.CarResponse
+import org.alterbit.ktorcars.rest.requests.CreateCarRequest
+import org.alterbit.ktorcars.rest.requests.UpdateCarRequest
 
 class CarsConverterTest : ShouldSpec({
 
-    val converter = org.alterbit.ktorcars.rest.cars.CarsConverter()
+    val converter = CarsConverter()
 
     context("create request") {
 
@@ -24,7 +25,7 @@ class CarsConverterTest : ShouldSpec({
 
         should("create command from request propagating all fields") {
             val id = "26da4a6c-e7b3-4b0c-be1f-68e709753c2a"
-            val request = org.alterbit.ktorcars.rest.cars.UpdateCarRequest("make", "colour")
+            val request = UpdateCarRequest("make", "colour")
 
             val command = converter.toCommand(id, request)
 
@@ -36,7 +37,7 @@ class CarsConverterTest : ShouldSpec({
 
         should("create command from request propagating no fields") {
             val id = "40b2fee3-1569-4e46-bad9-b62e176051ff"
-            val request = org.alterbit.ktorcars.rest.cars.UpdateCarRequest()
+            val request = UpdateCarRequest()
 
             val command = converter.toCommand(id, request)
 
@@ -45,7 +46,7 @@ class CarsConverterTest : ShouldSpec({
 
         should("create command from request propagating make") {
             val id = "a474d6b4-b447-4f6f-bf69-b88b6421e4b0"
-            val request = org.alterbit.ktorcars.rest.cars.UpdateCarRequest(make = "make")
+            val request = UpdateCarRequest(make = "make")
 
             val command = converter.toCommand(id, request)
 
@@ -54,7 +55,7 @@ class CarsConverterTest : ShouldSpec({
 
         should("create command from request propagating colour") {
             val id = "be6a55a6-1fa9-4a73-84de-fbae3ae4ae47"
-            val request = org.alterbit.ktorcars.rest.cars.UpdateCarRequest(colour = "Pink")
+            val request = UpdateCarRequest(colour = "Pink")
 
             val command = converter.toCommand(id, request)
 

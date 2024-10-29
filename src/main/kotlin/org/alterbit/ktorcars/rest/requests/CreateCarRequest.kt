@@ -1,4 +1,4 @@
-package org.alterbit.ktorcars.rest.cars
+package org.alterbit.ktorcars.rest.requests
 
 import kotlinx.serialization.Serializable
 

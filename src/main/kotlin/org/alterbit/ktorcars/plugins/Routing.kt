@@ -8,8 +8,10 @@ import io.ktor.server.resources.post
 import io.ktor.server.resources.put
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.alterbit.ktorcars.rest.cars.Cars
-import org.alterbit.ktorcars.rest.cars.CreateCarRequest
+import org.alterbit.ktorcars.rest.Cars
+import org.alterbit.ktorcars.rest.CarsConverter
+import org.alterbit.ktorcars.rest.requests.CreateCarRequest
+import org.alterbit.ktorcars.rest.requests.UpdateCarRequest
 import org.alterbit.ktorcars.services.CarsService
 import org.kodein.di.instance
 import org.kodein.di.ktor.closestDI
@@ -20,7 +22,7 @@ fun Application.configureRouting() {
 
     routing {
         val carsService: CarsService by closestDI().instance()
-        val carsConverter: org.alterbit.ktorcars.rest.cars.CarsConverter by closestDI().instance()
+        val carsConverter: CarsConverter by closestDI().instance()
 
         get<Cars> {
             carsService.getCars()
@@ -51,7 +53,7 @@ fun Application.configureRouting() {
         }
 
         put<Cars.Id> { request ->
-            call.receive<org.alterbit.ktorcars.rest.cars.UpdateCarRequest>()
+            call.receive<UpdateCarRequest>()
                 .let { requestBody -> carsConverter.toCommand(request.id, requestBody) }
                 .let { command -> carsService.updateCar(command) }
                 ?.let { car -> carsConverter.toResponse(car) }

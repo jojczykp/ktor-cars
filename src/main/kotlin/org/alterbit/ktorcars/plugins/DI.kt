@@ -5,6 +5,7 @@ import io.ktor.server.config.*
 import org.alterbit.ktorcars.database.DataSource
 import org.alterbit.ktorcars.database.DatabaseConfig
 import org.alterbit.ktorcars.database.cars.CarsIdGenerator
+import org.alterbit.ktorcars.rest.CarsConverter
 import org.alterbit.ktorcars.services.CarsService
 import org.jdbi.v3.core.Jdbi
 import org.kodein.di.bind
@@ -24,6 +25,6 @@ fun Application.configureDI() {
         bind<CarsIdGenerator>() with singleton { CarsIdGenerator() }
         bind<CarsService>() with singleton { CarsService(instance(), instance()) }
 
-        bind<org.alterbit.ktorcars.rest.cars.CarsConverter>() with singleton { org.alterbit.ktorcars.rest.cars.CarsConverter() }
+        bind<CarsConverter>() with singleton { CarsConverter() }
     }
 }
