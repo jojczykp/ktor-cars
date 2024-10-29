@@ -48,6 +48,8 @@ dependencies {
 
     // Logging
     implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("net.logstash.logback:logstash-logback-encoder:8.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.9.0")
 
     // DB
     implementation("org.postgresql:postgresql:42.7.4")
@@ -55,14 +57,8 @@ dependencies {
     implementation("org.flywaydb:flyway-core:$flyway_version")
     implementation("org.flywaydb:flyway-database-postgresql:$flyway_version")
     implementation("org.jdbi:jdbi3-core:$jdbi_version")  // Use the latest version
-
-    // JDBI support for SQL object API (optional but useful for Kotlin)
     implementation("org.jdbi:jdbi3-sqlobject:$jdbi_version")
-
-    // JDBI support for Kotlin (necessary for better Kotlin integration)
     implementation("org.jdbi:jdbi3-kotlin:$jdbi_version")
-
-    // JDBI Kotlin SQLObject support (if you are using SQL Objects with Kotlin)
     implementation("org.jdbi:jdbi3-kotlin-sqlobject:$jdbi_version")
 
     // Tests

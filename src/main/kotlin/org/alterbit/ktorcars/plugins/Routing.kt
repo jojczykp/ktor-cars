@@ -13,11 +13,12 @@ import org.alterbit.ktorcars.rest.CarsConverter
 import org.alterbit.ktorcars.rest.requests.CreateCarRequest
 import org.alterbit.ktorcars.rest.requests.UpdateCarRequest
 import org.alterbit.ktorcars.services.CarsService
+import org.alterbit.ktorcars.utils.withMdc
 import org.kodein.di.instance
 import org.kodein.di.ktor.closestDI
+import java.util.*
 
 fun Application.configureRouting() {
-
     install(Resources)
 
     routing {
@@ -25,40 +26,54 @@ fun Application.configureRouting() {
         val carsConverter: CarsConverter by closestDI().instance()
 
         get<Cars> {
-            carsService.getCars()
-                .map { cars -> carsConverter.toResponse(cars) }
-                .let { responseBody -> call.respond(HttpStatusCode.OK, responseBody) }
+            withMdc(requestFields()) {
+                carsService.getCars()
+                    .map { cars -> carsConverter.toResponse(cars) }
+                    .let { responseBody -> call.respond(HttpStatusCode.OK, responseBody) }
+            }
         }
 
         get<Cars.Id> {
-            carsService.getCar(it.id)
-                ?.let { car -> carsConverter.toResponse(car) }
-                ?.let { responseBody -> call.respond(HttpStatusCode.OK, responseBody) }
-                ?: call.respond(HttpStatusCode.NotFound)
+            withMdc(requestFields()) {
+                carsService.getCar(it.id)
+                    ?.let { car -> carsConverter.toResponse(car) }
+                    ?.let { responseBody -> call.respond(HttpStatusCode.OK, responseBody) }
+                    ?: call.respond(HttpStatusCode.NotFound)
+            }
         }
 
         delete<Cars.Id> {
-            carsService.deleteCar(it.id)
-                ?.let { car -> carsConverter.toResponse(car) }
-                ?.let { responseBody -> call.respond(HttpStatusCode.OK, responseBody) }
-                ?: call.respond(HttpStatusCode.NotFound)
+            withMdc(requestFields()) {
+                carsService.deleteCar(it.id)
+                    ?.let { car -> carsConverter.toResponse(car) }
+                    ?.let { responseBody -> call.respond(HttpStatusCode.OK, responseBody) }
+                    ?: call.respond(HttpStatusCode.NotFound)
+            }
         }
 
         post<Cars> {
-            call.receive<CreateCarRequest>()
-                .let { requestBody -> carsConverter.toCommand(requestBody) }
-                .let { command -> carsService.createCar(command) }
-                .let { car -> carsConverter.toResponse(car) }
-                .let { responseBody -> call.respond(HttpStatusCode.Created, responseBody) }
+            withMdc(requestFields()) {
+                call.receive<CreateCarRequest>()
+                    .let { requestBody -> carsConverter.toCommand(requestBody) }
+                    .let { command -> carsService.createCar(command) }
+                    .let { car -> carsConverter.toResponse(car) }
+                    .let { responseBody -> call.respond(HttpStatusCode.Created, responseBody) }
+            }
         }
 
         put<Cars.Id> { request ->
-            call.receive<UpdateCarRequest>()
-                .let { requestBody -> carsConverter.toCommand(request.id, requestBody) }
-                .let { command -> carsService.updateCar(command) }
-                ?.let { car -> carsConverter.toResponse(car) }
-                ?.let { responseBody -> call.respond(HttpStatusCode.OK, responseBody) }
-                ?: call.respond(HttpStatusCode.NotFound)
+            withMdc(requestFields()) {
+                call.receive<UpdateCarRequest>()
+                    .let { requestBody -> carsConverter.toCommand(request.id, requestBody) }
+                    .let { command -> carsService.updateCar(command) }
+                    ?.let { car -> carsConverter.toResponse(car) }
+                    ?.let { responseBody -> call.respond(HttpStatusCode.OK, responseBody) }
+                    ?: call.respond(HttpStatusCode.NotFound)
+            }
         }
     }
 }
+
+private fun requestFields() = mapOf(
+    "requestId" to UUID.randomUUID().toString()
+)
