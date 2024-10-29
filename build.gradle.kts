@@ -13,7 +13,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "2.0.20"
 }
 
-group = "org.alterbit"
+group = "org.alterbit.ktorcars"
 version = "0.0.1"
 
 kotlin {
