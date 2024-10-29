@@ -14,7 +14,6 @@ import org.alterbit.commands.UpdateCarCommand
 import org.alterbit.database.cars.CarsDao
 import org.alterbit.database.cars.CarsIdGenerator
 import org.alterbit.exceptions.CreateCarException
-import org.alterbit.exceptions.UpdateCarException
 import org.alterbit.model.Car
 import kotlin.test.assertFailsWith
 
@@ -159,14 +158,12 @@ class CarsServiceTest : ShouldSpec({
             val command = UpdateCarCommand(id, make, colour)
             every { dao.updateCar(command) } returns false
 
-            val thrown = assertFailsWith<UpdateCarException> {
-                service.updateCar(command)
-            }
+            val result = service.updateCar(command)
 
             verify(exactly = 1) { dao.updateCar(command) }
             verify(exactly = 0) { dao.getCar(any()) }
             verify { carsIdGenerator wasNot called }
-            thrown.id shouldBe id
+            result.shouldBeNull()
         }
 
         should("capture exception if update failed") {
@@ -202,35 +199,24 @@ class CarsServiceTest : ShouldSpec({
     context("deleteCar") {
 
         should("delete car by id") {
+            every { dao.getCar(id) } returns car
             every { dao.deleteCar(id) } returns true
 
             val result = service.deleteCar(id)
 
             verify(exactly = 1) { dao.deleteCar(id) }
             verify { carsIdGenerator wasNot called }
-            result shouldBe true
+            result shouldBe car
         }
 
         should("not delete car if car has not been found") {
-            every { dao.deleteCar(id) } returns false
+            every { dao.getCar(id) } returns null
 
             val result = service.deleteCar(id)
 
-            verify(exactly = 1) { dao.deleteCar(id) }
+            verify(exactly = 0) { dao.deleteCar(any()) }
             verify { carsIdGenerator wasNot called }
-            result shouldBe false
-        }
-
-        should("capture exception if deletion failed") {
-            every { dao.deleteCar(id) } throws exception
-
-            val thrown = assertFailsWith<Exception> {
-                service.deleteCar(id)
-            }
-
-            verify(exactly = 1) { dao.deleteCar(id) }
-            verify { carsIdGenerator wasNot called }
-            thrown shouldBe exception
+            result shouldBe null
         }
     }
 })

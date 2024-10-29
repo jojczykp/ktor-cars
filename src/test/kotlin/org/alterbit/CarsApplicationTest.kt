@@ -103,10 +103,11 @@ class CarsApplicationTest : ShouldSpec({
                 val response = client.delete("/cars/$id1")
 
                 response.apply {
-                    status shouldBe HttpStatusCode.NoContent
-                    headers["Content-Length"] shouldBe "0"
-                    headers.names().size shouldBe 1
-                    bodyAsText() shouldBe ""
+                    status shouldBe HttpStatusCode.OK
+                    headers["Content-Length"] shouldBe "74"
+                    headers["Content-Type"] shouldBe "application/json; charset=UTF-8"
+                    headers.names().size shouldBe 2
+                    bodyAsText() shouldBe """{"id":"$id1","make":"Audi","colour":"Red"}"""
                 }
 
                 getCarOrNull(id1) shouldBe null

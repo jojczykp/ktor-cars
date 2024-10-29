@@ -39,8 +39,9 @@ fun Application.configureRouting() {
 
         delete<Cars.Id> {
             carsService.deleteCar(it.id)
-                .let { existed -> if (existed) HttpStatusCode.NoContent else HttpStatusCode.NotFound }
-                .let { status -> call.respond(status) }
+                ?.let { car -> carsConverter.toResponse(car) }
+                ?.let { responseBody -> call.respond(HttpStatusCode.OK, responseBody) }
+                ?: call.respond(HttpStatusCode.NotFound)
         }
 
         post<Cars> {

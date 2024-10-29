@@ -7,7 +7,6 @@ import org.alterbit.database.cars.CarsDao
 import org.alterbit.database.cars.CarsIdGenerator
 import org.alterbit.exceptions.CreateCarException
 import org.alterbit.exceptions.CarNotFoundException
-import org.alterbit.exceptions.UpdateCarException
 
 class CarsService(
     private val carsDao: CarsDao,
@@ -25,7 +24,12 @@ class CarsService(
         return createdCar
     }
 
-    fun deleteCar(id: String): Boolean = carsDao.deleteCar(id)
+    fun deleteCar(id: String): Car? {
+        val deletedCar = carsDao.getCar(id) ?: return null
+        carsDao.deleteCar(id)
+
+        return deletedCar
+    }
 
     fun updateCar(command: UpdateCarCommand): Car? {
         carsDao.updateCar(command) || return null
